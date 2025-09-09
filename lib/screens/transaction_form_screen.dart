@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
-import '../providers/settings_provider.dart';
 import '../l10n/app_localizations.dart';
 
 class TransactionFormScreen extends StatefulWidget {
@@ -52,7 +51,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? l10n.editTransaction : l10n.addTransaction),

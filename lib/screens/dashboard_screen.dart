@@ -32,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.myFinance),
@@ -103,10 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Text(
                     l10n.totalBalance,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -152,80 +149,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
           margin: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-          Expanded(
-            child: Card(
-              child: InkWell(
-                onTap: () => _addTransaction(TransactionType.income),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.trending_up,
-                        color: Colors.green,
-                        size: 32,
+              Expanded(
+                child: Card(
+                  child: InkWell(
+                    onTap: () => _addTransaction(TransactionType.income),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.trending_up,
+                            color: Colors.green,
+                            size: 32,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(l10n.addIncome),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(l10n.addIncome),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Card(
-              child: InkWell(
-                onTap: () => _addTransaction(TransactionType.expense),
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.trending_down,
-                        color: Colors.red,
-                        size: 32,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(l10n.addExpense),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Card(
-              child: InkWell(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const TransactionsScreen(),
                     ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.list,
-                        color: Colors.blue,
-                        size: 32,
-                      ),
-                      SizedBox(height: 8),
-                      Text('View All'),
-                    ],
                   ),
                 ),
               ),
-            ),
-          ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Card(
+                  child: InkWell(
+                    onTap: () => _addTransaction(TransactionType.expense),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.trending_down,
+                            color: Colors.red,
+                            size: 32,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(l10n.addExpense),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Card(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const TransactionsScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Icon(Icons.list, color: Colors.blue, size: 32),
+                          SizedBox(height: 8),
+                          Text('View All'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -317,10 +310,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           SizedBox(height: 16),
                           Text(
                             'No transactions yet',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
                           ),
                         ],
                       ),
@@ -344,7 +334,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildLoanOverview() {
     return Consumer2<LoanProvider, SettingsProvider>(
       builder: (context, loanProvider, settingsProvider, child) {
-        final activeLoans = loanProvider.loans.where((loan) => loan.remainingBalance > 0).take(3).toList();
+        final activeLoans = loanProvider.loans
+            .where((loan) => loan.remainingBalance > 0)
+            .take(3)
+            .toList();
         final totalLoanBalance = loanProvider.totalLoanBalance;
         final overdueLoans = loanProvider.overdueLoans;
         final loansDueSoon = loanProvider.loansDueSoon;
@@ -396,10 +389,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           SizedBox(height: 16),
                           Text(
                             'No active loans',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
                           ),
                         ],
                       ),
@@ -414,7 +404,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Column(
                             children: [
                               Text(
-                                '${settingsProvider.formatAmount(totalLoanBalance)}',
+                                settingsProvider.formatAmount(totalLoanBalance),
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -474,12 +464,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   ...activeLoans.map((loan) {
                     return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
                       child: Card(
                         child: ListTile(
                           title: Text(loan.name),
-                          subtitle: Text('${settingsProvider.formatAmount(loan.remainingBalance)} remaining'),
-                          trailing: Text('${loan.progressPercentage.toStringAsFixed(0)}%'),
+                          subtitle: Text(
+                            '${settingsProvider.formatAmount(loan.remainingBalance)} remaining',
+                          ),
+                          trailing: Text(
+                            '${loan.progressPercentage.toStringAsFixed(0)}%',
+                          ),
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -502,24 +499,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _addTransaction([TransactionType? type]) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => TransactionFormScreen(),
-      ),
-    ).then((_) {
-      // Refresh data when returning from form
-      _refreshData();
-    });
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => TransactionFormScreen()))
+        .then((_) {
+          // Refresh data when returning from form
+          _refreshData();
+        });
   }
 
   void _editTransaction(Transaction transaction) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => TransactionFormScreen(transaction: transaction),
-      ),
-    ).then((_) {
-      // Refresh data when returning from form
-      _refreshData();
-    });
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) =>
+                TransactionFormScreen(transaction: transaction),
+          ),
+        )
+        .then((_) {
+          // Refresh data when returning from form
+          _refreshData();
+        });
   }
 }
