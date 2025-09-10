@@ -606,30 +606,24 @@ class AppLocalizations {
   String get khanBankIntegration => locale.languageCode == 'mn'
       ? 'Хаан Банк холболт'
       : 'Khan Bank Integration';
-  String get khanBankUsername => locale.languageCode == 'mn'
-      ? 'Хэрэглэгчийн нэр'
-      : 'Username';
-  String get khanBankAccount => locale.languageCode == 'mn'
-      ? 'Данс'
-      : 'Account';
-  String get khanBankDeviceId => locale.languageCode == 'mn'
-      ? 'Төхөөрөмжийн ID'
-      : 'Device ID';
-  String get khanBankPassword => locale.languageCode == 'mn'
-      ? 'Нууц үг'
-      : 'Password';
+  String get khanBankUsername =>
+      locale.languageCode == 'mn' ? 'Хэрэглэгчийн нэр' : 'Username';
+  String get khanBankAccount =>
+      locale.languageCode == 'mn' ? 'Данс' : 'Account';
+  String get khanBankDeviceId =>
+      locale.languageCode == 'mn' ? 'Төхөөрөмжийн ID' : 'Device ID';
+  String get khanBankPassword =>
+      locale.languageCode == 'mn' ? 'Нууц үг' : 'Password';
   String get enableKhanBankSync => locale.languageCode == 'mn'
       ? 'Хаан Банк синк идэвхжүүлэх'
       : 'Enable Khan Bank sync';
   String get downloadTransactions => locale.languageCode == 'mn'
       ? 'Гүйлгээ татаж авах'
       : 'Download Transactions';
-  String get khanBankStatus => locale.languageCode == 'mn'
-      ? 'Хаан Банк статус'
-      : 'Khan Bank Status';
-  String get configured => locale.languageCode == 'mn'
-      ? 'Тохируулагдсан'
-      : 'Configured';
+  String get khanBankStatus =>
+      locale.languageCode == 'mn' ? 'Хаан Банк статус' : 'Khan Bank Status';
+  String get configured =>
+      locale.languageCode == 'mn' ? 'Тохируулагдсан' : 'Configured';
   String get downloadingTransactions => locale.languageCode == 'mn'
       ? 'Гүйлгээ татаж байна...'
       : 'Downloading transactions...';

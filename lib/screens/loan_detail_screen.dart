@@ -276,11 +276,18 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(Icons.payment, size: 48, color: Colors.grey),
+                          const Icon(
+                            Icons.payment,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             l10n.noPaymentsRecorded,
-                            style: const TextStyle(color: Colors.grey, fontSize: 16),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),

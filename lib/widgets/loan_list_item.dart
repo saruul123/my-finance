@@ -45,17 +45,9 @@ class LoanListItem extends StatelessWidget {
                     ),
                   ),
                   if (loan.isOverdue)
-                    const Icon(
-                      Icons.warning,
-                      color: Colors.red,
-                      size: 20,
-                    )
+                    const Icon(Icons.warning, color: Colors.red, size: 20)
                   else if (loan.isDueSoon)
-                    const Icon(
-                      Icons.schedule,
-                      color: Colors.orange,
-                      size: 20,
-                    )
+                    const Icon(Icons.schedule, color: Colors.orange, size: 20)
                   else if (isCompleted)
                     const Icon(
                       Icons.check_circle,
@@ -157,18 +149,15 @@ class LoanListItem extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            l10n.dueDate,
-                            style: theme.textTheme.bodySmall,
-                          ),
+                          Text(l10n.dueDate, style: theme.textTheme.bodySmall),
                           Text(
                             DateFormat('MMM dd, yyyy').format(loan.endDate!),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: loan.isOverdue
                                   ? Colors.red
                                   : loan.isDueSoon
-                                      ? Colors.orange
-                                      : null,
+                                  ? Colors.orange
+                                  : null,
                             ),
                           ),
                         ],
@@ -183,10 +172,7 @@ class LoanListItem extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        l10n.progress,
-                        style: theme.textTheme.bodySmall,
-                      ),
+                      Text(l10n.progress, style: theme.textTheme.bodySmall),
                       Text(
                         '${progressPercentage.toStringAsFixed(1)}%',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -230,7 +216,7 @@ class LoanSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -241,12 +227,7 @@ class LoanSummaryCard extends StatelessWidget {
               children: [
                 Icon(icon, color: color ?? theme.primaryColor),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: theme.textTheme.titleSmall,
-                  ),
-                ),
+                Expanded(child: Text(title, style: theme.textTheme.titleSmall)),
               ],
             ),
             const SizedBox(height: 8),

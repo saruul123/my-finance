@@ -25,9 +25,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _khanBankAccountController = TextEditingController();
   final _khanBankDeviceIdController = TextEditingController();
   final _khanBankPasswordController = TextEditingController();
-  
+
   DateTime? _startDate;
   DateTime? _endDate;
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -36,12 +37,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final settingsProvider = context.read<SettingsProvider>();
       settingsProvider.loadSettings();
       _fileNamingController.text = settingsProvider.fileNamingScheme;
-      _reminderDaysController.text = settingsProvider.reminderDaysBefore.toString();
+      _reminderDaysController.text = settingsProvider.reminderDaysBefore
+          .toString();
       _khanBankUsernameController.text = settingsProvider.khanBankUsername;
       _khanBankAccountController.text = settingsProvider.khanBankAccount;
       _khanBankDeviceIdController.text = settingsProvider.khanBankDeviceId;
       _khanBankPasswordController.text = settingsProvider.khanBankPassword;
-      
+
       // Set default date range (last 30 days to today)
       final now = DateTime.now();
       _endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
@@ -63,11 +65,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-      ),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: Consumer<SettingsProvider>(
         builder: (context, provider, child) {
           return SingleChildScrollView(
@@ -108,7 +108,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: Text(l10n.defaultExportFormat),
-            subtitle: Text(provider.getExportFormatDisplayName(provider.defaultExportFormat)),
+            subtitle: Text(
+              provider.getExportFormatDisplayName(provider.defaultExportFormat),
+            ),
             trailing: DropdownButton<FileFormat>(
               value: provider.defaultExportFormat,
               onChanged: (FileFormat? value) {
@@ -173,7 +175,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildAppearanceSection(SettingsProvider provider, AppLocalizations l10n) {
+  Widget _buildAppearanceSection(
+    SettingsProvider provider,
+    AppLocalizations l10n,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -203,7 +208,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildNotificationSection(SettingsProvider provider, AppLocalizations l10n) {
+  Widget _buildNotificationSection(
+    SettingsProvider provider,
+    AppLocalizations l10n,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -248,7 +256,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildKhanBankSection(SettingsProvider provider, AppLocalizations l10n) {
+  Widget _buildKhanBankSection(
+    SettingsProvider provider,
+    AppLocalizations l10n,
+  ) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
@@ -308,8 +319,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     labelText: l10n.khanBankPassword,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   onChanged: (value) {
                     provider.updateSettings(khanBankPassword: value);
                   },
@@ -343,10 +367,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   const Text(
                                     'Start Date',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                   Text(
-                                    _startDate != null 
+                                    _startDate != null
                                         ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
                                         : 'Select date',
                                   ),
@@ -376,10 +403,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   const Text(
                                     'End Date',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                   Text(
-                                    _endDate != null 
+                                    _endDate != null
                                         ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
                                         : 'Select date',
                                   ),
@@ -396,8 +426,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: _isKhanBankConfigured(provider) && _startDate != null && _endDate != null 
-                        ? () => _downloadTransactions(provider) 
+                    onPressed:
+                        _isKhanBankConfigured(provider) &&
+                            _startDate != null &&
+                            _endDate != null
+                        ? () => _downloadTransactions(provider)
                         : null,
                     icon: const Icon(Icons.download),
                     label: Text(l10n.downloadTransactions),
@@ -416,7 +449,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildGoogleDriveSection(SettingsProvider provider, AppLocalizations l10n) {
+  Widget _buildGoogleDriveSection(
+    SettingsProvider provider,
+    AppLocalizations l10n,
+  ) {
     return Card(
       margin: const EdgeInsets.all(16),
       child: Column(
@@ -432,7 +468,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             title: Text(l10n.driveSyncStatus),
             subtitle: Text(
-              provider.isDriveSyncConfigured 
+              provider.isDriveSyncConfigured
                   ? '${l10n.connected} - ${l10n.lastSync}: ${provider.lastSyncDateFormatted}'
                   : l10n.notConfigured,
             ),
@@ -448,7 +484,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: OutlinedButton(
                     onPressed: () => _configureDriveSync(),
                     child: Text(
-                      provider.isDriveSyncConfigured 
+                      provider.isDriveSyncConfigured
                           ? l10n.reconfigure
                           : l10n.configureDrive,
                     ),
@@ -457,8 +493,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: provider.isDriveSyncConfigured 
-                        ? () => _syncToDrive() 
+                    onPressed: provider.isDriveSyncConfigured
+                        ? () => _syncToDrive()
                         : null,
                     child: Text(l10n.syncNow),
                   ),
@@ -508,10 +544,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.info),
           ),
           const Divider(),
-          ListTile(
-            title: Text(l10n.version),
-            subtitle: Text('1.0.0'),
-          ),
+          ListTile(title: Text(l10n.version), subtitle: Text('1.0.0')),
           ListTile(
             title: Text(l10n.myFinance),
             subtitle: Text(l10n.personalFinanceTracker),
@@ -523,7 +556,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showExportDialog() {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -564,7 +597,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showImportDialog() {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -607,15 +640,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showClearDataDialog() {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(l10n.clearAllData),
-          content: Text(
-            l10n.areYouSureClearData,
-          ),
+          content: Text(l10n.areYouSureClearData),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -637,18 +668,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _exportData(FileFormat format) async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     try {
       final exportService = ExportService();
       final success = await exportService.exportData(format);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              success 
-                  ? l10n.dataExportedSuccessfully
-                  : l10n.failedToExportData,
+              success ? l10n.dataExportedSuccessfully : l10n.failedToExportData,
             ),
             backgroundColor: success ? Colors.green : Colors.red,
           ),
@@ -668,27 +697,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _configureDriveSync() {
     final l10n = AppLocalizations.of(context)!;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.googleDriveSyncAvailableInFuture),
-      ),
+      SnackBar(content: Text(l10n.googleDriveSyncAvailableInFuture)),
     );
   }
 
   void _syncToDrive() {
     final l10n = AppLocalizations.of(context)!;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.googleDriveSyncFeatureAvailable),
-      ),
+      SnackBar(content: Text(l10n.googleDriveSyncFeatureAvailable)),
     );
   }
 
   Future<void> _clearAllData() async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     try {
       // Show loading dialog
       if (mounted) {
@@ -709,23 +734,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         );
       }
-      
+
       // Clear all data from database
       final databaseService = DatabaseService.instance;
       await databaseService.clearAllData();
-      
+
       // Refresh all providers
       if (mounted) {
         context.read<TransactionProvider>().loadTransactions();
         context.read<LoanProvider>().loadAll();
         context.read<SettingsProvider>().loadSettings();
       }
-      
+
       // Dismiss loading dialog
       if (mounted) {
         Navigator.of(context).pop();
       }
-      
+
       // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -740,7 +765,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         Navigator.of(context).pop();
       }
-      
+
       // Show error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -755,7 +780,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _selectAndImportFile() async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -765,7 +790,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       if (result != null) {
         final file = File(result.files.single.path!);
-        
+
         // Show loading dialog
         if (mounted) {
           showDialog(
@@ -811,7 +836,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         // Dismiss loading dialog if showing
         Navigator.of(context).pop();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${l10n.importError}: ${e.toString()}'),
@@ -824,16 +849,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showImportResultDialog(ImportResult result) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: Text(
             result.success ? l10n.importSuccess : l10n.importFailed,
-            style: TextStyle(
-              color: result.success ? Colors.green : Colors.red,
-            ),
+            style: TextStyle(color: result.success ? Colors.green : Colors.red),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -851,16 +874,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 16),
                 Text(
                   l10n.importWarnings,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                ...result.errors.map((error) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    '• $error',
-                    style: Theme.of(context).textTheme.bodySmall,
+                ...result.errors.map(
+                  (error) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      '• $error',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ),
-                )),
+                ),
               ],
             ],
           ),
@@ -877,15 +905,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _isKhanBankConfigured(SettingsProvider provider) {
     return provider.khanBankUsername.isNotEmpty &&
-           provider.khanBankAccount.isNotEmpty &&
-           provider.khanBankDeviceId.isNotEmpty &&
-           provider.khanBankPassword.isNotEmpty;
+        provider.khanBankAccount.isNotEmpty &&
+        provider.khanBankDeviceId.isNotEmpty &&
+        provider.khanBankPassword.isNotEmpty;
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _startDate ?? DateTime.now().subtract(const Duration(days: 30)),
+      initialDate:
+          _startDate ?? DateTime.now().subtract(const Duration(days: 30)),
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
@@ -912,7 +941,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _downloadTransactions(SettingsProvider provider) async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     if (!_isKhanBankConfigured(provider)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -926,7 +955,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_startDate == null || _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select both start and end dates'),
+          content: Text('Эхлэх болон дуусах огноо сонгоно уу'),
           backgroundColor: Colors.red,
         ),
       );
@@ -955,27 +984,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
 
       // Create Khan Bank service with user-selected date range
-      final startDateTime = DateTime(_startDate!.year, _startDate!.month, _startDate!.day, 0, 0, 0);
-      final endDateTime = DateTime(_endDate!.year, _endDate!.month, _endDate!.day, 23, 59, 59);
-      
+      final startDateTime = DateTime(
+        _startDate!.year,
+        _startDate!.month,
+        _startDate!.day,
+        0,
+        0,
+        0,
+      );
+      final endDateTime = DateTime(
+        _endDate!.year,
+        _endDate!.month,
+        _endDate!.day,
+        23,
+        59,
+        59,
+      );
+
+      // Convert dates to milliseconds timestamp format (Khan Bank API format)
+      final startTimeMs = startDateTime.millisecondsSinceEpoch.toString();
+      final endTimeMs = endDateTime.millisecondsSinceEpoch.toString();
+
+      print(
+        'Date range: ${startDateTime.toIso8601String()} to ${endDateTime.toIso8601String()}',
+      );
+      print('Timestamp range: $startTimeMs to $endTimeMs');
+
       final khanBankService = KhanBankService(
         username: provider.khanBankUsername,
         account: provider.khanBankAccount,
         deviceId: provider.khanBankDeviceId,
-        startTime: startDateTime.toIso8601String(),
-        nowTime: endDateTime.toIso8601String(),
+        startTime: startTimeMs,
+        nowTime: endTimeMs,
       );
 
       // Login to Khan Bank
-      final loginSuccess = await khanBankService.login(provider.khanBankPassword);
-      
+      final loginSuccess = await khanBankService.login(
+        provider.khanBankPassword,
+      );
+
       if (!loginSuccess) {
         if (mounted) {
           Navigator.of(context).pop(); // Dismiss loading dialog
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.khanBankLoginFailed),
+              content: const Text(
+                'Khan Bank нэвтэрхэд алдаа гарлаа. Нэвтрэх мэдээлэлээ шалгана уу.',
+              ),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'Дэлгэрэнгүй',
+                textColor: Colors.white,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Интернэт холболт, нэвтрэх нэр, нууц үг эсвэл төхөөрөмжийн ID-г шалгана уу.',
+                      ),
+                      duration: Duration(seconds: 5),
+                    ),
+                  );
+                },
+              ),
             ),
           );
         }
@@ -984,14 +1055,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Download transactions
       final result = await khanBankService.downloadTransactions();
-      
+
       if (result == null) {
         if (mounted) {
           Navigator.of(context).pop(); // Dismiss loading dialog
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.downloadFailed),
+              content: const Text(
+                'Гүйлгээ татахад алдаа гарлаа. Огнооны интервал эсвэл данс дугаар шалгана уу.',
+              ),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'Дэлгэрэнгүй',
+                textColor: Colors.white,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Огноо, данс дугаар, эсвэл интернэт холболтыг шалгана уу. Эсвэл тухайн хугацаанд гүйлгээ байхгүй байж болзошгүй.',
+                      ),
+                      duration: Duration(seconds: 7),
+                    ),
+                  );
+                },
+              ),
             ),
           );
         }
@@ -1000,13 +1088,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Convert and save transactions
       final transactions = khanBankService.convertToAppTransactions(result);
-      
+
       int addedCount = 0;
+      int duplicateCount = 0;
       if (mounted) {
         final transactionProvider = context.read<TransactionProvider>();
+        final existingTransactions = DatabaseService.instance
+            .getAllTransactions();
+        final existingIds = existingTransactions.map((t) => t.id).toSet();
+
         for (final transaction in transactions) {
-          await transactionProvider.addTransaction(transaction);
-          addedCount++;
+          // Check if transaction already exists
+          if (!existingIds.contains(transaction.id)) {
+            await transactionProvider.addTransaction(transaction);
+            addedCount++;
+          } else {
+            duplicateCount++;
+          }
         }
       }
 
@@ -1017,10 +1115,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Show success message
       if (mounted) {
+        String message;
+        if (duplicateCount > 0) {
+          message =
+              '${l10n.transactionsDownloaded}: $addedCount new, $duplicateCount duplicates skipped';
+        } else {
+          message =
+              '${l10n.transactionsDownloaded}: $addedCount ${l10n.transactions}';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${l10n.transactionsDownloaded} ($addedCount ${l10n.transactions})'),
+            content: Text(message),
             backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -1029,7 +1137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         Navigator.of(context).pop();
       }
-      
+
       // Show error message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

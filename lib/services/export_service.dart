@@ -312,7 +312,7 @@ class ExportService {
   Future<ImportResult> importData(File file) async {
     try {
       final fileName = file.path.split('/').last.toLowerCase();
-      
+
       if (fileName.endsWith('.json')) {
         return await _importFromJson(file);
       } else if (fileName.endsWith('.csv')) {
@@ -320,7 +320,8 @@ class ExportService {
       } else {
         return ImportResult(
           success: false,
-          message: 'Unsupported file format. Only JSON and CSV files are supported.',
+          message:
+              'Unsupported file format. Only JSON and CSV files are supported.',
         );
       }
     } catch (e) {
@@ -355,7 +356,9 @@ class ExportService {
         try {
           final transactionsList = data['transactions'] as List<dynamic>;
           for (final transactionData in transactionsList) {
-            final transaction = Transaction.fromJson(transactionData as Map<String, dynamic>);
+            final transaction = Transaction.fromJson(
+              transactionData as Map<String, dynamic>,
+            );
             await _databaseService.addTransaction(transaction);
             importedCount++;
           }
@@ -383,7 +386,9 @@ class ExportService {
         try {
           final paymentsList = data['payments'] as List<dynamic>;
           for (final paymentData in paymentsList) {
-            final payment = Payment.fromJson(paymentData as Map<String, dynamic>);
+            final payment = Payment.fromJson(
+              paymentData as Map<String, dynamic>,
+            );
             await _databaseService.addPayment(payment);
             importedCount++;
           }
@@ -409,13 +414,12 @@ class ExportService {
   Future<ImportResult> _importFromCsv(File file) async {
     try {
       final csvString = await file.readAsString();
-      final List<List<dynamic>> csvData = const CsvToListConverter().convert(csvString);
-      
+      final List<List<dynamic>> csvData = const CsvToListConverter().convert(
+        csvString,
+      );
+
       if (csvData.isEmpty) {
-        return ImportResult(
-          success: false,
-          message: 'CSV file is empty',
-        );
+        return ImportResult(success: false, message: 'CSV file is empty');
       }
 
       final fileName = file.path.split('/').last.toLowerCase();
@@ -431,15 +435,16 @@ class ExportService {
       } else {
         return ImportResult(
           success: false,
-          message: 'Cannot determine data type from filename. Please ensure filename contains "transaction", "loan", or "payment".',
+          message:
+              'Cannot determine data type from filename. Please ensure filename contains "transaction", "loan", or "payment".',
         );
       }
 
       return ImportResult(
         success: importedCount > 0,
-        message: importedCount > 0 
-          ? 'Successfully imported $importedCount items.'
-          : 'No items were imported.',
+        message: importedCount > 0
+            ? 'Successfully imported $importedCount items.'
+            : 'No items were imported.',
         importedCount: importedCount,
         errors: errors,
       );
@@ -451,9 +456,12 @@ class ExportService {
     }
   }
 
-  Future<int> _importTransactionsFromCsv(List<List<dynamic>> csvData, List<String> errors) async {
+  Future<int> _importTransactionsFromCsv(
+    List<List<dynamic>> csvData,
+    List<String> errors,
+  ) async {
     int importedCount = 0;
-    
+
     // Skip header row
     for (int i = 1; i < csvData.length; i++) {
       try {
@@ -462,16 +470,20 @@ class ExportService {
 
         final transaction = Transaction(
           id: row[0].toString(),
-          type: row[1].toString().toLowerCase() == 'income' 
-            ? TransactionType.income 
-            : TransactionType.expense,
+          type: row[1].toString().toLowerCase() == 'income'
+              ? TransactionType.income
+              : TransactionType.expense,
           category: row[2].toString(),
           amount: double.parse(row[3].toString()),
           // currency is always MNT, skip row[4]
           date: DateTime.parse(row[5].toString()),
           note: row[6].toString(),
-          createdAt: row.length > 7 ? DateTime.parse(row[7].toString()) : DateTime.now(),
-          updatedAt: row.length > 8 ? DateTime.parse(row[8].toString()) : DateTime.now(),
+          createdAt: row.length > 7
+              ? DateTime.parse(row[7].toString())
+              : DateTime.now(),
+          updatedAt: row.length > 8
+              ? DateTime.parse(row[8].toString())
+              : DateTime.now(),
         );
 
         await _databaseService.addTransaction(transaction);
@@ -480,13 +492,16 @@ class ExportService {
         errors.add('Failed to import transaction at row ${i + 1}: $e');
       }
     }
-    
+
     return importedCount;
   }
 
-  Future<int> _importLoansFromCsv(List<List<dynamic>> csvData, List<String> errors) async {
+  Future<int> _importLoansFromCsv(
+    List<List<dynamic>> csvData,
+    List<String> errors,
+  ) async {
     int importedCount = 0;
-    
+
     // Skip header row
     for (int i = 1; i < csvData.length; i++) {
       try {
@@ -500,10 +515,16 @@ class ExportService {
           monthlyPayment: double.parse(row[3].toString()),
           interestRate: double.parse(row[4].toString()),
           startDate: DateTime.parse(row[5].toString()),
-          endDate: row[6].toString().isEmpty ? null : DateTime.parse(row[6].toString()),
+          endDate: row[6].toString().isEmpty
+              ? null
+              : DateTime.parse(row[6].toString()),
           remainingBalance: double.parse(row[7].toString()),
-          createdAt: row.length > 8 ? DateTime.parse(row[8].toString()) : DateTime.now(),
-          updatedAt: row.length > 9 ? DateTime.parse(row[9].toString()) : DateTime.now(),
+          createdAt: row.length > 8
+              ? DateTime.parse(row[8].toString())
+              : DateTime.now(),
+          updatedAt: row.length > 9
+              ? DateTime.parse(row[9].toString())
+              : DateTime.now(),
         );
 
         await _databaseService.addLoan(loan);
@@ -512,13 +533,16 @@ class ExportService {
         errors.add('Failed to import loan at row ${i + 1}: $e');
       }
     }
-    
+
     return importedCount;
   }
 
-  Future<int> _importPaymentsFromCsv(List<List<dynamic>> csvData, List<String> errors) async {
+  Future<int> _importPaymentsFromCsv(
+    List<List<dynamic>> csvData,
+    List<String> errors,
+  ) async {
     int importedCount = 0;
-    
+
     // Skip header row
     for (int i = 1; i < csvData.length; i++) {
       try {
@@ -531,7 +555,9 @@ class ExportService {
           date: DateTime.parse(row[2].toString()),
           amount: double.parse(row[3].toString()),
           note: row[4].toString(),
-          createdAt: row.length > 5 ? DateTime.parse(row[5].toString()) : DateTime.now(),
+          createdAt: row.length > 5
+              ? DateTime.parse(row[5].toString())
+              : DateTime.now(),
         );
 
         await _databaseService.addPayment(payment);
@@ -540,7 +566,7 @@ class ExportService {
         errors.add('Failed to import payment at row ${i + 1}: $e');
       }
     }
-    
+
     return importedCount;
   }
 }
