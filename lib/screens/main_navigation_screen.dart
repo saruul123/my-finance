@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import 'dashboard_screen.dart';
 import 'transactions_screen.dart';
 import 'loans_screen.dart';
+import 'khan_bank_screen.dart';
 import 'settings_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const DashboardScreen(),
     const TransactionsScreen(),
     const LoansScreen(),
+    const KhanBankScreen(),
     const SettingsScreen(),
   ];
 
@@ -49,6 +51,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.account_balance),
             label: l10n.loans,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.account_balance_wallet),
+            label: 'Хаан Банк',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.settings),

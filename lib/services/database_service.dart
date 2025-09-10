@@ -2,6 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/transaction.dart';
 import '../models/loan.dart';
 import '../models/settings.dart';
+import 'categorization_service.dart';
 
 class DatabaseService {
   static const String transactionsBox = 'transactions';
@@ -41,6 +42,9 @@ class DatabaseService {
       instance._settings = await Hive.openBox<Settings>(settingsBox);
 
       await instance._initializeSettings();
+      
+      // Initialize categorization service
+      await CategorizationService.init();
     } catch (e) {
       print('Error opening Hive boxes, attempting recovery: $e');
       

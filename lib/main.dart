@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'services/database_service.dart';
+import 'services/app_lifecycle_service.dart';
+import 'services/auto_fetch_service.dart';
 import 'providers/transaction_provider.dart';
 import 'providers/loan_provider.dart';
 import 'providers/settings_provider.dart';
@@ -33,6 +35,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => LoanProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..loadSettings()),
+        ChangeNotifierProvider.value(value: AutoFetchService.instance),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, child) {
@@ -60,7 +63,9 @@ class MyApp extends StatelessWidget {
             ],
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('mn'), // Default to Mongolian
-            home: const MainNavigationScreen(),
+            home: const AppLifecycleService(
+              child: MainNavigationScreen(),
+            ),
             debugShowCheckedModeBanner: false,
           );
         },

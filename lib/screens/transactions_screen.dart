@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
+import '../services/auto_fetch_service.dart';
 import '../widgets/transaction_list_item.dart';
 import '../l10n/app_localizations.dart';
 import 'transaction_form_screen.dart';
@@ -30,6 +31,96 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _onRefresh() async {
+    final autoFetchService = context.read<AutoFetchService>();
+    
+    try {
+      await autoFetchService.fetchTransactions(context, showLoading: false);
+      
+      if (mounted) {
+        // Reload local transactions after fetch
+        context.read<TransactionProvider>().loadTransactions();
+        
+        // Show success/error message
+        if (autoFetchService.lastError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Шинэчлэхэд алдаа: ${autoFetchService.lastError}'),
+              backgroundColor: Colors.orange,
+              action: SnackBarAction(
+                label: 'Дахин оролдох',
+                textColor: Colors.white,
+                onPressed: () => _onRefresh(),
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Дахин оролдох',
+              textColor: Colors.white,
+              onPressed: () => _onRefresh(),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildLastUpdatedHeader() {
+    return Consumer<AutoFetchService>(
+      builder: (context, autoFetchService, child) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            border: Border(
+              bottom: BorderSide(
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.sync,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Сүүлд шинэчлэгдсэн: ${autoFetchService.getLastUpdatedText()}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
+              const Spacer(),
+              if (autoFetchService.isFetching)
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildSummarySection(List<Transaction> transactions, AppLocalizations l10n) {
@@ -309,42 +400,97 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ),
       body: Column(
         children: [
+          _buildLastUpdatedHeader(),
           if (_showFilters) _buildFiltersSection(),
           Expanded(
-            child: Consumer<TransactionProvider>(
-              builder: (context, provider, child) {
-                final transactions = provider.transactions;
+            child: RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: Consumer<TransactionProvider>(
+                builder: (context, provider, child) {
+                  final transactions = provider.transactions;
 
-                if (transactions.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.receipt_long, size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.noTransactionsYet,
-                          style: const TextStyle(fontSize: 18, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.tapToAddFirst,
-                          style: const TextStyle(color: Colors.grey),
+                  if (transactions.isEmpty) {
+                    return CustomScrollView(
+                      slivers: [
+                        SliverFillRemaining(
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.receipt_long, size: 64, color: Colors.grey),
+                                const SizedBox(height: 16),
+                                Text(
+                                  l10n.noTransactionsYet,
+                                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l10n.tapToAddFirst,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Татаж авахын тулд доош татна уу',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
-                    ),
-                  );
-                }
+                    );
+                  }
 
-                return Column(
-                  children: [
-                    _buildSummarySection(transactions, l10n),
-                    Expanded(
-                      child: _buildGroupedTransactionsList(transactions, l10n),
-                    ),
-                  ],
-                );
-              },
+                  return CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: _buildSummarySection(transactions, l10n),
+                      ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            // Group transactions by date
+                            final Map<String, List<Transaction>> groupedTransactions = {};
+                            
+                            for (final transaction in transactions) {
+                              final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
+                              if (!groupedTransactions.containsKey(dateKey)) {
+                                groupedTransactions[dateKey] = [];
+                              }
+                              groupedTransactions[dateKey]!.add(transaction);
+                            }
+
+                            // Sort dates in descending order (newest first)
+                            final sortedDates = groupedTransactions.keys.toList()
+                              ..sort((a, b) => b.compareTo(a));
+
+                            if (index >= sortedDates.length) return null;
+
+                            final dateKey = sortedDates[index];
+                            final dayTransactions = groupedTransactions[dateKey]!;
+                            final date = DateTime.parse(dateKey);
+                            
+                            return _buildDayGroup(date, dayTransactions, l10n);
+                          },
+                          childCount: () {
+                            // Calculate number of unique dates
+                            final Map<String, List<Transaction>> groupedTransactions = {};
+                            for (final transaction in transactions) {
+                              final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
+                              if (!groupedTransactions.containsKey(dateKey)) {
+                                groupedTransactions[dateKey] = [];
+                              }
+                            }
+                            return groupedTransactions.keys.length;
+                          }(),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],

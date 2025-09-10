@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../models/transaction.dart';
+import 'categorization_service.dart';
 
 class KhanBankService {
   String username = "";
@@ -211,10 +212,15 @@ class KhanBankService {
         // Create a unique ID based on transaction details to detect duplicates
         final uniqueId = _createUniqueTransactionId(kbTransaction, amount);
 
+        // Use automatic categorization service
+        final category = CategorizationService.instance.categorizeTransaction(
+          kbTransaction.transactionRemarks,
+        );
+
         final transaction = Transaction(
           id: uniqueId,
           amount: amount.abs(),
-          category: _categorizeTransaction(kbTransaction.transactionRemarks),
+          category: category,
           note: kbTransaction.transactionRemarks,
           date: DateTime.parse(
             "${kbTransaction.transactionDate}T${kbTransaction.txnTime}",
@@ -245,44 +251,6 @@ class KhanBankService {
     return uniqueString;
   }
 
-  /// Categorize transaction based on remarks
-  String _categorizeTransaction(String remarks) {
-    final remarksLower = remarks.toLowerCase();
-
-    // Transport
-    if (remarksLower.contains('автобус') ||
-        remarksLower.contains('bus') ||
-        remarksLower.contains('такси') ||
-        remarksLower.contains('taxi')) {
-      return 'Тээвэр';
-    }
-
-    // Food
-    if (remarksLower.contains('kfc') ||
-        remarksLower.contains('мс') ||
-        remarksLower.contains('burger') ||
-        remarksLower.contains('хоол') ||
-        remarksLower.contains('food')) {
-      return 'Хоол хүнс';
-    }
-
-    // Shopping
-    if (remarksLower.contains('дэлгүүр') ||
-        remarksLower.contains('shop') ||
-        remarksLower.contains('store')) {
-      return 'Дэлгүүр худалдаа';
-    }
-
-    // Transfer/Personal
-    if (remarksLower.contains('саруул-эрдэм') ||
-        remarksLower.contains('-с') ||
-        remarksLower.contains('transfer')) {
-      return 'Шилжүүлэг';
-    }
-
-    // Default category
-    return 'Бусад';
-  }
 }
 
 /// Khan Bank transaction result model

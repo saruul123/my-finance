@@ -69,6 +69,9 @@ class Settings extends HiveObject {
   @HiveField(17, defaultValue: false)
   late bool khanBankEnabled;
 
+  @HiveField(18)
+  DateTime? lastSyncTime;
+
   Settings({
     this.defaultExportFormat = FileFormat.excel,
     this.exportFolderPath = '',
@@ -84,6 +87,7 @@ class Settings extends HiveObject {
     this.khanBankDeviceId = '',
     this.khanBankPassword = '',
     this.khanBankEnabled = false,
+    this.lastSyncTime,
     required this.lastSyncDate,
     required this.createdAt,
     required this.updatedAt,
@@ -104,6 +108,7 @@ class Settings extends HiveObject {
     khanBankDeviceId = '';
     khanBankPassword = '';
     khanBankEnabled = false;
+    lastSyncTime = null;
     lastSyncDate = DateTime.now();
     createdAt = DateTime.now();
     updatedAt = DateTime.now();
@@ -126,6 +131,7 @@ class Settings extends HiveObject {
       'khanBankDeviceId': khanBankDeviceId,
       'khanBankPassword': khanBankPassword,
       'khanBankEnabled': khanBankEnabled,
+      'lastSyncTime': lastSyncTime?.toIso8601String(),
       'lastSyncDate': lastSyncDate.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -152,6 +158,7 @@ class Settings extends HiveObject {
       khanBankDeviceId: json['khanBankDeviceId'] ?? '',
       khanBankPassword: json['khanBankPassword'] ?? '',
       khanBankEnabled: json['khanBankEnabled'] ?? false,
+      lastSyncTime: json['lastSyncTime'] != null ? DateTime.parse(json['lastSyncTime']) : null,
       lastSyncDate: DateTime.parse(json['lastSyncDate']),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),

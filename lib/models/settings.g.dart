@@ -31,6 +31,7 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       khanBankDeviceId: fields[15] == null ? '' : fields[15] as String,
       khanBankPassword: fields[16] == null ? '' : fields[16] as String,
       khanBankEnabled: fields[17] == null ? false : fields[17] as bool,
+      lastSyncTime: fields[18] as DateTime?,
       lastSyncDate: fields[9] as DateTime,
       createdAt: fields[10] as DateTime,
       updatedAt: fields[11] as DateTime,
@@ -40,7 +41,7 @@ class SettingsAdapter extends TypeAdapter<Settings> {
   @override
   void write(BinaryWriter writer, Settings obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(1)
       ..write(obj.defaultExportFormat)
       ..writeByte(2)
@@ -74,7 +75,9 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       ..writeByte(16)
       ..write(obj.khanBankPassword)
       ..writeByte(17)
-      ..write(obj.khanBankEnabled);
+      ..write(obj.khanBankEnabled)
+      ..writeByte(18)
+      ..write(obj.lastSyncTime);
   }
 
   @override
