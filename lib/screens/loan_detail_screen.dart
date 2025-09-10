@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/loan.dart';
 import '../providers/loan_provider.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/payment_list_item.dart';
+import '../l10n/app_localizations.dart';
 import 'payment_form_screen.dart';
 import 'loan_form_screen.dart';
 
@@ -27,8 +29,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LoanProvider>(
-      builder: (context, provider, child) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Consumer2<LoanProvider, SettingsProvider>(
+      builder: (context, provider, settingsProvider, child) {
         final currentLoan = provider.getLoan(widget.loan.id) ?? widget.loan;
         final payments = provider.getPaymentsForLoan(currentLoan.id);
         final isCompleted = currentLoan.remainingBalance <= 0;
@@ -45,9 +49,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
           ),
           body: Column(
             children: [
-              _buildLoanSummary(currentLoan),
-              _buildProgressSection(currentLoan),
-              _buildPaymentsSection(payments),
+              _buildLoanSummary(currentLoan, l10n, settingsProvider),
+              _buildProgressSection(currentLoan, l10n, settingsProvider),
+              _buildPaymentsSection(payments, l10n),
             ],
           ),
           floatingActionButton: isCompleted
@@ -55,14 +59,18 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               : FloatingActionButton.extended(
                   onPressed: () => _addPayment(currentLoan),
                   icon: const Icon(Icons.payment),
-                  label: const Text('Add Payment'),
+                  label: Text(l10n.addPayment),
                 ),
         );
       },
     );
   }
 
-  Widget _buildLoanSummary(Loan loan) {
+  Widget _buildLoanSummary(
+    Loan loan,
+    AppLocalizations l10n,
+    SettingsProvider settingsProvider,
+  ) {
     final theme = Theme.of(context);
     final isCompleted = loan.remainingBalance <= 0;
 
@@ -77,27 +85,27 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    'Loan Details',
+                    l10n.loanDetails,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 if (loan.isOverdue)
-                  const Chip(
-                    label: Text('Overdue'),
+                  Chip(
+                    label: Text(l10n.overdue),
                     backgroundColor: Colors.red,
                     labelStyle: TextStyle(color: Colors.white),
                   )
                 else if (loan.isDueSoon)
-                  const Chip(
-                    label: Text('Due Soon'),
+                  Chip(
+                    label: Text(l10n.dueSoon),
                     backgroundColor: Colors.orange,
                     labelStyle: TextStyle(color: Colors.white),
                   )
                 else if (isCompleted)
-                  const Chip(
-                    label: Text('Completed'),
+                  Chip(
+                    label: Text(l10n.completed),
                     backgroundColor: Colors.green,
                     labelStyle: TextStyle(color: Colors.white),
                   ),
@@ -108,14 +116,14 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               children: [
                 Expanded(
                   child: _buildDetailItem(
-                    'Principal',
-                    '\$${NumberFormat('#,##0.00').format(loan.principal)}',
+                    l10n.principal,
+                    settingsProvider.formatAmount(loan.principal),
                   ),
                 ),
                 Expanded(
                   child: _buildDetailItem(
-                    'Remaining Balance',
-                    '\$${NumberFormat('#,##0.00').format(loan.remainingBalance)}',
+                    l10n.remainingBalance,
+                    settingsProvider.formatAmount(loan.remainingBalance),
                     color: isCompleted ? Colors.green : Colors.red,
                   ),
                 ),
@@ -126,13 +134,13 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               children: [
                 Expanded(
                   child: _buildDetailItem(
-                    'Monthly Payment',
-                    '\$${NumberFormat('#,##0.00').format(loan.monthlyPayment)}',
+                    l10n.monthlyPayment,
+                    settingsProvider.formatAmount(loan.monthlyPayment),
                   ),
                 ),
                 Expanded(
                   child: _buildDetailItem(
-                    'Interest Rate',
+                    l10n.interestRate,
                     '${loan.interestRate.toStringAsFixed(1)}%',
                   ),
                 ),
@@ -143,16 +151,16 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               children: [
                 Expanded(
                   child: _buildDetailItem(
-                    'Start Date',
+                    l10n.startDate,
                     DateFormat('MMM dd, yyyy').format(loan.startDate),
                   ),
                 ),
                 Expanded(
                   child: _buildDetailItem(
-                    'Due Date',
+                    l10n.dueDate,
                     loan.endDate != null
                         ? DateFormat('MMM dd, yyyy').format(loan.endDate!)
-                        : 'Not set',
+                        : l10n.notSet,
                   ),
                 ),
               ],
@@ -165,14 +173,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
   Widget _buildDetailItem(String label, String value, {Color? color}) {
     final theme = Theme.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.bodySmall,
-        ),
+        Text(label, style: theme.textTheme.bodySmall),
         Text(
           value,
           style: theme.textTheme.bodyLarge?.copyWith(
@@ -184,7 +189,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     );
   }
 
-  Widget _buildProgressSection(Loan loan) {
+  Widget _buildProgressSection(
+    Loan loan,
+    AppLocalizations l10n,
+    SettingsProvider settingsProvider,
+  ) {
     final theme = Theme.of(context);
     final progressPercentage = loan.progressPercentage;
     final paidAmount = loan.principal - loan.remainingBalance;
@@ -197,7 +206,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Payment Progress',
+              l10n.paymentProgress,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -207,7 +216,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Paid: \$${NumberFormat('#,##0.00').format(paidAmount)}',
+                  '${l10n.paid}: ${settingsProvider.formatAmount(paidAmount)}',
                   style: theme.textTheme.bodyMedium,
                 ),
                 Text(
@@ -232,7 +241,7 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
     );
   }
 
-  Widget _buildPaymentsSection(List<Payment> payments) {
+  Widget _buildPaymentsSection(List<Payment> payments, AppLocalizations l10n) {
     final theme = Theme.of(context);
 
     return Expanded(
@@ -247,14 +256,14 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Payment History',
+                      l10n.paymentHistory,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                   Text(
-                    '${payments.length} payments',
+                    '${payments.length} ${l10n.paymentsCount}',
                     style: theme.textTheme.bodySmall,
                   ),
                 ],
@@ -263,22 +272,15 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
             const Divider(height: 1),
             Expanded(
               child: payments.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.payment,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 16),
+                          const Icon(Icons.payment, size: 48, color: Colors.grey),
+                          const SizedBox(height: 16),
                           Text(
-                            'No payments recorded yet',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
+                            l10n.noPaymentsRecorded,
+                            style: const TextStyle(color: Colors.grey, fontSize: 16),
                           ),
                         ],
                       ),
@@ -302,11 +304,9 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
   }
 
   void _editLoan(Loan loan) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LoanFormScreen(loan: loan),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => LoanFormScreen(loan: loan)));
   }
 
   void _addPayment(Loan loan) {
@@ -320,32 +320,31 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
   void _editPayment(Payment payment) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PaymentFormScreen(
-          loanId: payment.loanId,
-          payment: payment,
-        ),
+        builder: (context) =>
+            PaymentFormScreen(loanId: payment.loanId, payment: payment),
       ),
     );
   }
 
   Future<void> _deletePayment(Payment payment) async {
+    final l10n = AppLocalizations.of(context)!;
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Payment'),
+          title: Text(l10n.deletePayment),
           content: Text(
-            'Are you sure you want to delete this payment of \$${NumberFormat('#,##0.00').format(payment.amount)}?',
+            '${l10n.deletePaymentConfirmation} ${context.read<SettingsProvider>().formatAmount(payment.amount)}?',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );

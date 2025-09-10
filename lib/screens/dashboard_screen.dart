@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/loan_provider.dart';
@@ -79,7 +78,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final l10n = AppLocalizations.of(context)!;
         final totalBalance = transactionProvider.totalBalance;
         final monthlyBalance = transactionProvider.currentMonthBalance;
-        final currencySymbol = settingsProvider.currencySymbol;
         final isPositive = totalBalance >= 0;
 
         return Container(
@@ -206,13 +204,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     },
                     borderRadius: BorderRadius.circular(12),
-                    child: const Padding(
-                      padding: EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          Icon(Icons.list, color: Colors.blue, size: 32),
-                          SizedBox(height: 8),
-                          Text('View All'),
+                          const Icon(Icons.list, color: Colors.blue, size: 32),
+                          const SizedBox(height: 8),
+                          Text(l10n.viewAll),
                         ],
                       ),
                     ),
@@ -229,15 +227,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildSummaryCards() {
     return Consumer2<TransactionProvider, SettingsProvider>(
       builder: (context, transactionProvider, settingsProvider, child) {
+        final l10n = AppLocalizations.of(context)!;
         return Container(
           margin: const EdgeInsets.all(16),
           child: Row(
             children: [
               Expanded(
                 child: TransactionSummaryCard(
-                  title: 'Income',
+                  title: l10n.income,
                   amount: transactionProvider.totalIncome,
-                  currency: 'MNT',
+                  currency: '₮',
                   color: Colors.green,
                   icon: Icons.trending_up,
                 ),
@@ -245,9 +244,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: TransactionSummaryCard(
-                  title: 'Expenses',
+                  title: l10n.expenses,
                   amount: transactionProvider.totalExpenses,
-                  currency: 'MNT',
+                  currency: '₮',
                   color: Colors.red,
                   icon: Icons.trending_down,
                 ),
@@ -262,6 +261,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildRecentTransactions() {
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
+        final l10n = AppLocalizations.of(context)!;
         final recentTransactions = provider.getRecentTransactions(5);
 
         return Container(
@@ -274,10 +274,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Recent Transactions',
-                          style: TextStyle(
+                          l10n.recentTransactions,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -291,26 +291,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           );
                         },
-                        child: const Text('View All'),
+                        child: Text(l10n.viewAll),
                       ),
                     ],
                   ),
                 ),
                 if (recentTransactions.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(32),
+                  Padding(
+                    padding: const EdgeInsets.all(32),
                     child: Center(
                       child: Column(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.receipt_long,
                             size: 48,
                             color: Colors.grey,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
-                            'No transactions yet',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            l10n.noTransactionsYet,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
@@ -334,6 +337,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildLoanOverview() {
     return Consumer2<LoanProvider, SettingsProvider>(
       builder: (context, loanProvider, settingsProvider, child) {
+        final l10n = AppLocalizations.of(context)!;
         final activeLoans = loanProvider.loans
             .where((loan) => loan.remainingBalance > 0)
             .take(3)
@@ -341,7 +345,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final totalLoanBalance = loanProvider.totalLoanBalance;
         final overdueLoans = loanProvider.overdueLoans;
         final loansDueSoon = loanProvider.loansDueSoon;
-        final currencySymbol = settingsProvider.currencySymbol;
 
         return Container(
           margin: const EdgeInsets.all(16),
@@ -353,10 +356,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Loan Overview',
-                          style: TextStyle(
+                          l10n.loanOverview,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -370,26 +373,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           );
                         },
-                        child: const Text('View All'),
+                        child: Text(l10n.viewAll),
                       ),
                     ],
                   ),
                 ),
                 if (activeLoans.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(32),
+                  Padding(
+                    padding: const EdgeInsets.all(32),
                     child: Center(
                       child: Column(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.account_balance,
                             size: 48,
                             color: Colors.grey,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
-                            'No active loans',
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
+                            l10n.noActiveLoans,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
@@ -411,9 +417,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   color: Colors.red,
                                 ),
                               ),
-                              const Text(
-                                'Total Balance',
-                                style: TextStyle(fontSize: 12),
+                              Text(
+                                l10n.totalBalanceLoan,
+                                style: const TextStyle(fontSize: 12),
                               ),
                             ],
                           ),
@@ -430,9 +436,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     color: Colors.red,
                                   ),
                                 ),
-                                const Text(
-                                  'Overdue',
-                                  style: TextStyle(fontSize: 12),
+                                Text(
+                                  l10n.overdue,
+                                  style: const TextStyle(fontSize: 12),
                                 ),
                               ],
                             ),
@@ -450,9 +456,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     color: Colors.orange,
                                   ),
                                 ),
-                                const Text(
-                                  'Due Soon',
-                                  style: TextStyle(fontSize: 12),
+                                Text(
+                                  l10n.dueSoon,
+                                  style: const TextStyle(fontSize: 12),
                                 ),
                               ],
                             ),
@@ -472,7 +478,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: ListTile(
                           title: Text(loan.name),
                           subtitle: Text(
-                            '${settingsProvider.formatAmount(loan.remainingBalance)} remaining',
+                            '${settingsProvider.formatAmount(loan.remainingBalance)} ${l10n.remaining}',
                           ),
                           trailing: Text(
                             '${loan.progressPercentage.toStringAsFixed(0)}%',

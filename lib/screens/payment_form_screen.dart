@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/loan.dart';
 import '../providers/loan_provider.dart';
+import '../providers/settings_provider.dart';
+import '../l10n/app_localizations.dart';
 
 class PaymentFormScreen extends StatefulWidget {
   final String loanId;
@@ -52,19 +54,23 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final l10n = AppLocalizations.of(context)!;
+    
+    return Consumer<SettingsProvider>(
+      builder: (context, settingsProvider, child) {
+        return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Edit Payment' : 'Add Payment'),
+        title: Text(isEditing ? l10n.editPayment : l10n.addPayment),
         actions: [
           TextButton(
             onPressed: _savePayment,
-            child: const Text('Save'),
+            child: Text(l10n.save),
           ),
         ],
       ),
       body: _loan == null
-          ? const Center(
-              child: Text('Loan not found'),
+          ? Center(
+              child: Text(l10n.loanNotFound),
             )
           : Form(
               key: _formKey,
@@ -80,14 +86,14 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Payment for: ${_loan!.name}',
+                              '${l10n.paymentFor} ${_loan!.name}',
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text('Remaining Balance: \$${NumberFormat('#,##0.00').format(_loan!.remainingBalance)}'),
-                            Text('Monthly Payment: \$${NumberFormat('#,##0.00').format(_loan!.monthlyPayment)}'),
+                            Text('${l10n.remainingBalance}: ${settingsProvider.formatAmount(_loan!.remainingBalance)}'),
+                            Text('${l10n.monthlyPayment}: ${settingsProvider.formatAmount(_loan!.monthlyPayment)}'),
                           ],
                         ),
                       ),
@@ -95,25 +101,25 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _amountController,
-                      decoration: const InputDecoration(
-                        labelText: 'Payment Amount',
-                        prefixText: '\$ ',
-                        border: OutlineInputBorder(),
-                        helperText: 'Enter the payment amount',
+                      decoration: InputDecoration(
+                        labelText: l10n.paymentAmount,
+                        prefixText: '₮ ',
+                        border: const OutlineInputBorder(),
+                        helperText: l10n.enterPaymentAmount,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a payment amount';
+                          return l10n.pleaseEnterPaymentAmount;
                         }
                         if (double.tryParse(value) == null) {
-                          return 'Please enter a valid number';
+                          return l10n.pleaseEnterValidNumber;
                         }
                         if (double.parse(value) <= 0) {
-                          return 'Payment amount must be greater than 0';
+                          return l10n.paymentMustBeGreaterThanZero;
                         }
                         if (!isEditing && double.parse(value) > _loan!.remainingBalance) {
-                          return 'Payment cannot exceed remaining balance';
+                          return l10n.paymentCannotExceedBalance;
                         }
                         return null;
                       },
@@ -122,9 +128,9 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     InkWell(
                       onTap: _selectDate,
                       child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Payment Date',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.paymentDate,
+                          border: const OutlineInputBorder(),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -138,10 +144,10 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _noteController,
-                      decoration: const InputDecoration(
-                        labelText: 'Note (optional)',
-                        border: OutlineInputBorder(),
-                        helperText: 'Add any additional notes about this payment',
+                      decoration: InputDecoration(
+                        labelText: l10n.noteOptional,
+                        border: const OutlineInputBorder(),
+                        helperText: l10n.addPaymentNote,
                       ),
                       maxLines: 3,
                     ),
@@ -152,14 +158,14 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                           Expanded(
                             child: OutlinedButton(
                               onPressed: _setMonthlyPayment,
-                              child: const Text('Use Monthly Payment'),
+                              child: Text(l10n.useMonthlyPayment),
                             ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: _setRemainingBalance,
-                              child: const Text('Pay Off Loan'),
+                              child: Text(l10n.payOffLoan),
                             ),
                           ),
                         ],
@@ -169,6 +175,8 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                 ),
               ),
             ),
+        );
+      },
     );
   }
 

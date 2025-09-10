@@ -22,6 +22,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const SettingsScreen(),
   ];
 
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import '../models/loan.dart';
 import '../providers/loan_provider.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/loan_list_item.dart';
+import '../l10n/app_localizations.dart';
 import 'loan_form_screen.dart';
 import 'loan_detail_screen.dart';
 
@@ -14,7 +15,8 @@ class LoansScreen extends StatefulWidget {
   State<LoansScreen> createState() => _LoansScreenState();
 }
 
-class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStateMixin {
+class _LoansScreenState extends State<LoansScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -34,30 +36,40 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Loans'),
+        title: Text(l10n.loans),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Active'),
-            Tab(text: 'All'),
-            Tab(text: 'Completed'),
+          tabs: [
+            Tab(text: l10n.activeLoan),
+            Tab(text: l10n.allLoans),
+            Tab(text: l10n.completedLoans),
           ],
         ),
       ),
-      body: Consumer<LoanProvider>(
-        builder: (context, provider, child) {
+      body: Consumer2<LoanProvider, SettingsProvider>(
+        builder: (context, loanProvider, settingsProvider, child) {
           return Column(
             children: [
-              _buildSummaryCards(provider),
+              _buildSummaryCards(loanProvider, settingsProvider),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildLoansList(provider.loans.where((loan) => loan.remainingBalance > 0).toList()),
-                    _buildLoansList(provider.loans),
-                    _buildLoansList(provider.loans.where((loan) => loan.remainingBalance <= 0).toList()),
+                    _buildLoansList(
+                      loanProvider.loans
+                          .where((loan) => loan.remainingBalance > 0)
+                          .toList(),
+                    ),
+                    _buildLoansList(loanProvider.loans),
+                    _buildLoansList(
+                      loanProvider.loans
+                          .where((loan) => loan.remainingBalance <= 0)
+                          .toList(),
+                    ),
                   ],
                 ),
               ),
@@ -72,7 +84,11 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildSummaryCards(LoanProvider provider) {
+  Widget _buildSummaryCards(
+    LoanProvider provider,
+    SettingsProvider settingsProvider,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -84,13 +100,13 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Total Balance',
-                      style: TextStyle(fontSize: 12),
+                    Text(
+                      l10n.totalBalance,
+                      style: const TextStyle(fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${NumberFormat('#,##0.00').format(provider.totalLoanBalance)}',
+                      settingsProvider.formatAmount(provider.totalLoanBalance),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -110,9 +126,9 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Active Loans',
-                      style: TextStyle(fontSize: 12),
+                    Text(
+                      l10n.activeLoans,
+                      style: const TextStyle(fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -136,13 +152,15 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Monthly Payment',
-                      style: TextStyle(fontSize: 12),
+                    Text(
+                      l10n.monthlyPaymentTotal,
+                      style: const TextStyle(fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${NumberFormat('#,##0.00').format(provider.getMonthlyPaymentTotal())}',
+                      settingsProvider.formatAmount(
+                        provider.getMonthlyPaymentTotal(),
+                      ),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -160,23 +178,18 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
   }
 
   Widget _buildLoansList(List<Loan> loans) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (loans.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.account_balance,
-              size: 64,
-              color: Colors.grey,
-            ),
-            SizedBox(height: 16),
+            const Icon(Icons.account_balance, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
             Text(
-              'No loans found',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-              ),
+              l10n.noLoansFound,
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
             ),
           ],
         ),
@@ -198,47 +211,43 @@ class _LoansScreenState extends State<LoansScreen> with SingleTickerProviderStat
   }
 
   void _addLoan() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const LoanFormScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const LoanFormScreen()));
   }
 
   void _editLoan(Loan loan) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LoanFormScreen(loan: loan),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => LoanFormScreen(loan: loan)));
   }
 
   void _viewLoanDetail(Loan loan) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => LoanDetailScreen(loan: loan),
-      ),
+      MaterialPageRoute(builder: (context) => LoanDetailScreen(loan: loan)),
     );
   }
 
   Future<void> _deleteLoan(Loan loan) async {
+    final l10n = AppLocalizations.of(context)!;
+
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Loan'),
+          title: Text(l10n.deleteLoan),
           content: Text(
-            'Are you sure you want to delete "${loan.name}"? This will also delete all associated payments.',
+            l10n.deleteLoanConfirmation.replaceAll('{loanName}', loan.name),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );

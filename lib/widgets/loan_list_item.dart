@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/loan.dart';
+import '../l10n/app_localizations.dart';
 
 class LoanListItem extends StatelessWidget {
   final Loan loan;
@@ -19,6 +20,7 @@ class LoanListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isCompleted = loan.remainingBalance <= 0;
     final progressPercentage = loan.progressPercentage;
 
@@ -72,19 +74,19 @@ class LoanListItem extends StatelessWidget {
                       }
                     },
                     itemBuilder: (context) => [
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'edit',
                         child: ListTile(
-                          leading: Icon(Icons.edit),
-                          title: Text('Edit'),
+                          leading: const Icon(Icons.edit),
+                          title: Text(l10n.edit),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'delete',
                         child: ListTile(
-                          leading: Icon(Icons.delete, color: Colors.red),
-                          title: Text('Delete'),
+                          leading: const Icon(Icons.delete, color: Colors.red),
+                          title: Text(l10n.delete),
                           contentPadding: EdgeInsets.zero,
                         ),
                       ),
@@ -100,7 +102,7 @@ class LoanListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Remaining Balance',
+                          l10n.remainingBalance,
                           style: theme.textTheme.bodySmall,
                         ),
                         Text(
@@ -118,7 +120,7 @@ class LoanListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Monthly Payment',
+                          l10n.monthlyPayment,
                           style: theme.textTheme.bodySmall,
                         ),
                         Text(
@@ -140,7 +142,7 @@ class LoanListItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Interest Rate',
+                          l10n.interestRate,
                           style: theme.textTheme.bodySmall,
                         ),
                         Text(
@@ -156,7 +158,7 @@ class LoanListItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Due Date',
+                            l10n.dueDate,
                             style: theme.textTheme.bodySmall,
                           ),
                           Text(
@@ -182,7 +184,7 @@ class LoanListItem extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Progress',
+                        l10n.progress,
                         style: theme.textTheme.bodySmall,
                       ),
                       Text(

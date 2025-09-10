@@ -5,9 +5,9 @@ import '../services/database_service.dart';
 
 class SettingsProvider extends ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService.instance;
-  late Settings _settings;
+  Settings? _settings;
 
-  Settings get settings => _settings;
+  Settings get settings => _settings ?? Settings.defaultSettings();
 
   void loadSettings() {
     _settings = _databaseService.getSettings();
@@ -24,8 +24,15 @@ class SettingsProvider extends ChangeNotifier {
     bool? notificationsEnabled,
     bool? appLockEnabled,
     String? googleDriveFolderId,
+    bool? darkModeEnabled,
+    String? khanBankUsername,
+    String? khanBankAccount,
+    String? khanBankDeviceId,
+    String? khanBankPassword,
+    bool? khanBankEnabled,
   }) async {
-    _settings.updateSettings(
+    final currentSettings = _settings ?? _databaseService.getSettings();
+    currentSettings.updateSettings(
       // defaultCurrency removed - always MNT
       defaultExportFormat: defaultExportFormat,
       exportFolderPath: exportFolderPath,
@@ -35,42 +42,59 @@ class SettingsProvider extends ChangeNotifier {
       notificationsEnabled: notificationsEnabled,
       appLockEnabled: appLockEnabled,
       googleDriveFolderId: googleDriveFolderId,
+      darkModeEnabled: darkModeEnabled,
+      khanBankUsername: khanBankUsername,
+      khanBankAccount: khanBankAccount,
+      khanBankDeviceId: khanBankDeviceId,
+      khanBankPassword: khanBankPassword,
+      khanBankEnabled: khanBankEnabled,
     );
     
-    await _databaseService.updateSettings(_settings);
+    _settings = currentSettings;
+    await _databaseService.updateSettings(currentSettings);
     notifyListeners();
   }
 
   Future<void> updateLastSyncDate() async {
-    _settings.updateLastSyncDate();
-    await _databaseService.updateSettings(_settings);
+    final currentSettings = _settings ?? _databaseService.getSettings();
+    currentSettings.updateLastSyncDate();
+    _settings = currentSettings;
+    await _databaseService.updateSettings(currentSettings);
     notifyListeners();
   }
 
   String get defaultCurrency => 'MNT'; // Always MNT
-  FileFormat get defaultExportFormat => _settings.defaultExportFormat;
-  String get exportFolderPath => _settings.exportFolderPath;
-  String get fileNamingScheme => _settings.fileNamingScheme;
-  bool get autoBackupEnabled => _settings.autoBackupEnabled;
-  int get reminderDaysBefore => _settings.reminderDaysBefore;
-  bool get notificationsEnabled => _settings.notificationsEnabled;
-  bool get appLockEnabled => _settings.appLockEnabled;
-  String get googleDriveFolderId => _settings.googleDriveFolderId;
-  DateTime get lastSyncDate => _settings.lastSyncDate;
+  FileFormat get defaultExportFormat => settings.defaultExportFormat;
+  String get exportFolderPath => settings.exportFolderPath;
+  String get fileNamingScheme => settings.fileNamingScheme;
+  bool get autoBackupEnabled => settings.autoBackupEnabled;
+  int get reminderDaysBefore => settings.reminderDaysBefore;
+  bool get notificationsEnabled => settings.notificationsEnabled;
+  bool get appLockEnabled => settings.appLockEnabled;
+  String get googleDriveFolderId => settings.googleDriveFolderId;
+  bool get darkModeEnabled => settings.darkModeEnabled;
+  DateTime get lastSyncDate => settings.lastSyncDate;
 
-  String get formattedFileName => _settings.getFormattedFileName();
+  // Khan Bank settings
+  String get khanBankUsername => settings.khanBankUsername;
+  String get khanBankAccount => settings.khanBankAccount;
+  String get khanBankDeviceId => settings.khanBankDeviceId;
+  String get khanBankPassword => settings.khanBankPassword;
+  bool get khanBankEnabled => settings.khanBankEnabled;
+
+  String get formattedFileName => settings.getFormattedFileName();
 
   Future<void> resetToDefaults() async {
     _settings = Settings.defaultSettings();
-    await _databaseService.updateSettings(_settings);
+    await _databaseService.updateSettings(_settings!);
     notifyListeners();
   }
 
-  bool get isDriveSyncConfigured => _settings.googleDriveFolderId.isNotEmpty;
+  bool get isDriveSyncConfigured => settings.googleDriveFolderId.isNotEmpty;
 
   String get lastSyncDateFormatted {
     final now = DateTime.now();
-    final difference = now.difference(_settings.lastSyncDate);
+    final difference = now.difference(settings.lastSyncDate);
     
     if (difference.inDays > 0) {
       return '${difference.inDays} days ago';
@@ -101,8 +125,8 @@ class SettingsProvider extends ChangeNotifier {
   // Always return MNT symbol
   String get currencySymbol => '₮';
   
-  // Format amount with MNT and thousand separators
+  // Format amount with ₮ symbol and thousand separators
   String formatAmount(double amount) {
-    return '${NumberFormat('#,##0').format(amount)} MNT';
+    return '${NumberFormat('#,##0').format(amount)} ₮';
   }
 }

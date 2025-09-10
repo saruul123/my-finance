@@ -22,7 +22,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
   TransactionType _selectedType = TransactionType.expense;
   DateTime _selectedDate = DateTime.now();
-  // Currency is always MNT, no selection needed
+  // Currency is always ₮ (MNT), no selection needed
 
   bool get isEditing => widget.transaction != null;
 
@@ -36,7 +36,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       _noteController.text = transaction.note;
       _categoryController.text = transaction.category;
       _selectedDate = transaction.date;
-      // Currency is always MNT, no selection needed
+      // Currency is always ₮ (MNT), no selection needed
     }
   }
 
@@ -56,6 +56,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       appBar: AppBar(
         title: Text(isEditing ? l10n.editTransaction : l10n.addTransaction),
         actions: [
+          if (isEditing)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _deleteTransaction,
+              tooltip: l10n.deleteTransaction,
+            ),
           TextButton(onPressed: _saveTransaction, child: Text(l10n.save)),
         ],
       ),
@@ -172,7 +178,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Currency is always MNT, no dropdown needed
+              // Currency is always ₮ (MNT), no dropdown needed
               TextFormField(
                 controller: _noteController,
                 decoration: InputDecoration(
@@ -213,7 +219,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           type: _selectedType,
           category: _categoryController.text.trim(),
           amount: amount,
-          // currency is always MNT, no parameter needed
+          // currency is always ₮ (MNT), no parameter needed
           date: _selectedDate,
           note: _noteController.text.trim(),
         );
@@ -223,13 +229,48 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           type: _selectedType,
           category: _categoryController.text.trim(),
           amount: amount,
-          // currency is always MNT, no parameter needed
+          // currency is always ₮ (MNT), no parameter needed
           date: _selectedDate,
           note: _noteController.text.trim(),
         );
         await transactionProvider.addTransaction(newTransaction);
       }
 
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  Future<void> _deleteTransaction() async {
+    if (!isEditing) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.deleteTransaction),
+          content: Text(l10n.deleteTransactionConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: Text(l10n.delete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && mounted) {
+      final transactionProvider = context.read<TransactionProvider>();
+      await transactionProvider.deleteTransaction(widget.transaction!.id);
+      
       if (mounted) {
         Navigator.of(context).pop();
       }

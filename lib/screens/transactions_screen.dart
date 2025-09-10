@@ -32,6 +32,259 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     super.dispose();
   }
 
+  Widget _buildSummarySection(List<Transaction> transactions, AppLocalizations l10n) {
+    // Calculate totals
+    double totalIncome = 0;
+    double totalExpense = 0;
+    
+    for (final transaction in transactions) {
+      if (transaction.type == TransactionType.income) {
+        totalIncome += transaction.amount;
+      } else {
+        totalExpense += transaction.amount;
+      }
+    }
+    
+    final totalNet = totalIncome - totalExpense;
+    
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primaryContainer,
+            Theme.of(context).colorScheme.primaryContainer.withOpacity(0.7),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.analytics,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${l10n.financialSummary} (${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'})',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSummaryItem(
+                  l10n.income,
+                  totalIncome,
+                  Icons.trending_up,
+                  Colors.green,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildSummaryItem(
+                  l10n.expenses,
+                  totalExpense,
+                  Icons.trending_down,
+                  Colors.red,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildSummaryItem(
+                  'Net',
+                  totalNet,
+                  totalNet >= 0 ? Icons.account_balance_wallet : Icons.warning,
+                  totalNet >= 0 ? Colors.green : Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(String title, double amount, IconData icon, Color color) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 4),
+        Text(
+          title,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          '₮${NumberFormat('#,##0.00').format(amount.abs())}',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGroupedTransactionsList(List<Transaction> transactions, AppLocalizations l10n) {
+    // Group transactions by date
+    final Map<String, List<Transaction>> groupedTransactions = {};
+    
+    for (final transaction in transactions) {
+      final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
+      if (!groupedTransactions.containsKey(dateKey)) {
+        groupedTransactions[dateKey] = [];
+      }
+      groupedTransactions[dateKey]!.add(transaction);
+    }
+
+    // Sort dates in descending order (newest first)
+    final sortedDates = groupedTransactions.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    return ListView.builder(
+      itemCount: sortedDates.length,
+      itemBuilder: (context, index) {
+        final dateKey = sortedDates[index];
+        final dayTransactions = groupedTransactions[dateKey]!;
+        final date = DateTime.parse(dateKey);
+        
+        return _buildDayGroup(date, dayTransactions, l10n);
+      },
+    );
+  }
+
+  Widget _buildDayGroup(DateTime date, List<Transaction> transactions, AppLocalizations l10n) {
+    // Calculate daily totals
+    double dayIncome = 0;
+    double dayExpense = 0;
+    
+    for (final transaction in transactions) {
+      if (transaction.type == TransactionType.income) {
+        dayIncome += transaction.amount;
+      } else {
+        dayExpense += transaction.amount;
+      }
+    }
+    
+    final dayNet = dayIncome - dayExpense;
+    final isToday = DateFormat('yyyy-MM-dd').format(DateTime.now()) == 
+                   DateFormat('yyyy-MM-dd').format(date);
+    final isYesterday = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 1))) == 
+                       DateFormat('yyyy-MM-dd').format(date);
+    
+    String dateTitle;
+    if (isToday) {
+      dateTitle = l10n.today;
+    } else if (isYesterday) {
+      dateTitle = l10n.yesterday;
+    } else {
+      dateTitle = DateFormat('EEEE, MMM dd, yyyy').format(date);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Date header with daily summary
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    dateTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (dayIncome > 0) ...[
+                    Icon(Icons.trending_up, color: Colors.green, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '₮${NumberFormat('#,##0.00').format(dayIncome)}',
+                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                  if (dayExpense > 0) ...[
+                    Icon(Icons.trending_down, color: Colors.red, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '₮${NumberFormat('#,##0.00').format(dayExpense)}',
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                  const Spacer(),
+                  Text(
+                    'Net: ',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    '₮${NumberFormat('#,##0.00').format(dayNet)}',
+                    style: TextStyle(
+                      color: dayNet >= 0 ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        // Transactions for this day
+        ...transactions.map((transaction) => TransactionListItem(
+              transaction: transaction,
+              onTap: () => _editTransaction(transaction),
+              onDelete: () => _deleteTransaction(transaction),
+            )),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -83,16 +336,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   );
                 }
 
-                return ListView.builder(
-                  itemCount: transactions.length,
-                  itemBuilder: (context, index) {
-                    final transaction = transactions[index];
-                    return TransactionListItem(
-                      transaction: transaction,
-                      onTap: () => _editTransaction(transaction),
-                      onDelete: () => _deleteTransaction(transaction),
-                    );
-                  },
+                return Column(
+                  children: [
+                    _buildSummarySection(transactions, l10n),
+                    Expanded(
+                      child: _buildGroupedTransactionsList(transactions, l10n),
+                    ),
+                  ],
                 );
               },
             ),
@@ -316,19 +566,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        
         return AlertDialog(
-          title: const Text('Delete Transaction'),
-          content: const Text(
-            'Are you sure you want to delete this transaction?',
+          title: Text(l10n.deleteTransaction),
+          content: Text(
+            l10n.deleteTransactionConfirmation,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );

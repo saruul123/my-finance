@@ -34,23 +34,90 @@ class DatabaseService {
     Hive.registerAdapter(FileFormatAdapter());
     Hive.registerAdapter(SettingsAdapter());
 
-    instance._transactions = await Hive.openBox<Transaction>(transactionsBox);
-    instance._loans = await Hive.openBox<Loan>(loansBox);
-    instance._payments = await Hive.openBox<Payment>(paymentsBox);
-    instance._settings = await Hive.openBox<Settings>(settingsBox);
+    try {
+      instance._transactions = await Hive.openBox<Transaction>(transactionsBox);
+      instance._loans = await Hive.openBox<Loan>(loansBox);
+      instance._payments = await Hive.openBox<Payment>(paymentsBox);
+      instance._settings = await Hive.openBox<Settings>(settingsBox);
 
-    await instance._initializeSettings();
+      await instance._initializeSettings();
+    } catch (e) {
+      print('Error opening Hive boxes, attempting recovery: $e');
+      
+      // Try to recover by deleting corrupted settings box and recreating
+      try {
+        await Hive.deleteBoxFromDisk(settingsBox);
+        instance._settings = await Hive.openBox<Settings>(settingsBox);
+        await instance._initializeSettings();
+        
+        // Try to open other boxes again
+        instance._transactions = await Hive.openBox<Transaction>(transactionsBox);
+        instance._loans = await Hive.openBox<Loan>(loansBox);
+        instance._payments = await Hive.openBox<Payment>(paymentsBox);
+      } catch (e2) {
+        print('Recovery failed, clearing all data: $e2');
+        
+        // Last resort: clear all corrupted data
+        await clearAllCorruptedData();
+        
+        instance._transactions = await Hive.openBox<Transaction>(transactionsBox);
+        instance._loans = await Hive.openBox<Loan>(loansBox);
+        instance._payments = await Hive.openBox<Payment>(paymentsBox);
+        instance._settings = await Hive.openBox<Settings>(settingsBox);
+        await instance._initializeSettings();
+      }
+    }
+  }
+
+  static Future<void> clearAllCorruptedData() async {
+    try {
+      await Hive.deleteBoxFromDisk(transactionsBox);
+    } catch (e) {
+      print('Failed to delete transactions box: $e');
+    }
+    
+    try {
+      await Hive.deleteBoxFromDisk(loansBox);
+    } catch (e) {
+      print('Failed to delete loans box: $e');
+    }
+    
+    try {
+      await Hive.deleteBoxFromDisk(paymentsBox);
+    } catch (e) {
+      print('Failed to delete payments box: $e');
+    }
+    
+    try {
+      await Hive.deleteBoxFromDisk(settingsBox);
+    } catch (e) {
+      print('Failed to delete settings box: $e');
+    }
   }
 
   Future<void> _initializeSettings() async {
-    if (_settings.get(settingsKey) == null) {
+    try {
+      final existingSettings = _settings.get(settingsKey);
+      if (existingSettings == null) {
+        final defaultSettings = Settings.defaultSettings();
+        await _settings.put(settingsKey, defaultSettings);
+      }
+    } catch (e) {
+      // If there's any error reading existing settings (e.g., due to schema changes),
+      // create new default settings
+      print('Error reading existing settings, creating defaults: $e');
       final defaultSettings = Settings.defaultSettings();
       await _settings.put(settingsKey, defaultSettings);
     }
   }
 
   Settings getSettings() {
-    return _settings.get(settingsKey) ?? Settings.defaultSettings();
+    try {
+      return _settings.get(settingsKey) ?? Settings.defaultSettings();
+    } catch (e) {
+      print('Error getting settings, returning defaults: $e');
+      return Settings.defaultSettings();
+    }
   }
 
   Future<void> updateSettings(Settings newSettings) async {

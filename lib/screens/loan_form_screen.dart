@@ -21,6 +21,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
   final _principalController = TextEditingController();
   final _monthlyPaymentController = TextEditingController();
   final _interestRateController = TextEditingController();
+  final _remainingBalanceController = TextEditingController();
 
   DateTime _startDate = DateTime.now();
   DateTime? _endDate;
@@ -37,25 +38,42 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       _principalController.text = loan.principal.toString();
       _monthlyPaymentController.text = loan.monthlyPayment.toString();
       _interestRateController.text = loan.interestRate.toString();
+      _remainingBalanceController.text = loan.remainingBalance.toString();
       _startDate = loan.startDate;
       _endDate = loan.endDate;
       _hasEndDate = loan.endDate != null;
+    } else {
+      // For new loans, auto-update remaining balance when principal changes
+      _principalController.addListener(_updateRemainingBalance);
+    }
+  }
+
+  void _updateRemainingBalance() {
+    // Only auto-update if remaining balance is empty or equals current principal
+    if (_remainingBalanceController.text.isEmpty || 
+        (_principalController.text.isNotEmpty && 
+         _remainingBalanceController.text == _principalController.text)) {
+      _remainingBalanceController.text = _principalController.text;
     }
   }
 
   @override
   void dispose() {
+    if (!isEditing) {
+      _principalController.removeListener(_updateRemainingBalance);
+    }
     _nameController.dispose();
     _principalController.dispose();
     _monthlyPaymentController.dispose();
     _interestRateController.dispose();
+    _remainingBalanceController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(isEditing ? l10n.editLoan : l10n.addLoan),
@@ -162,13 +180,39 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _remainingBalanceController,
+                        decoration: InputDecoration(
+                          labelText: l10n.remainingBalance,
+                          prefixText: '₮ ',
+                          border: const OutlineInputBorder(),
+                          helperText: l10n.currentRemainingAmount,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            // Set to principal amount if empty
+                            return null;
+                          }
+                          if (double.tryParse(value) == null) {
+                            return l10n.pleaseEnterValidNumber;
+                          }
+                          if (double.parse(value) < 0) {
+                            return l10n.amountMustBeGreaterThanZero;
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
                       InkWell(
                         onTap: _selectStartDate,
                         child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Start Date',
-                            border: OutlineInputBorder(),
-                            helperText: 'When the loan started',
+                          decoration: InputDecoration(
+                            labelText: l10n.startDate,
+                            border: const OutlineInputBorder(),
+                            helperText: l10n.whenLoanStarted,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,10 +227,8 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                       ),
                       const SizedBox(height: 16),
                       SwitchListTile(
-                        title: const Text('Has End Date'),
-                        subtitle: const Text(
-                          'Specify when the loan should be fully paid',
-                        ),
+                        title: Text(l10n.hasEndDate),
+                        subtitle: Text(l10n.specifyLoanEndDate),
                         value: _hasEndDate,
                         onChanged: (bool value) {
                           setState(() {
@@ -206,10 +248,10 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                         InkWell(
                           onTap: _selectEndDate,
                           child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'End Date',
-                              border: OutlineInputBorder(),
-                              helperText: 'When the loan should be fully paid',
+                            decoration: InputDecoration(
+                              labelText: l10n.endDate,
+                              border: const OutlineInputBorder(),
+                              helperText: l10n.whenLoanFullyPaid,
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -219,7 +261,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                                       ? DateFormat(
                                           'MMM dd, yyyy',
                                         ).format(_endDate!)
-                                      : 'Select end date',
+                                      : l10n.selectEndDate,
                                 ),
                                 const Icon(Icons.calendar_today),
                               ],
@@ -239,7 +281,7 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Current Status',
+                                  l10n.currentStatus,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.titleMedium,
@@ -248,12 +290,12 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                                 Consumer<SettingsProvider>(
                                   builder: (context, settingsProvider, child) {
                                     return Text(
-                                      'Remaining Balance: ${settingsProvider.formatAmount(widget.loan!.remainingBalance)}',
+                                      '${l10n.remainingBalance}: ${settingsProvider.formatAmount(widget.loan!.remainingBalance)}',
                                     );
                                   },
                                 ),
                                 Text(
-                                  'Progress: ${widget.loan!.progressPercentage.toStringAsFixed(1)}%',
+                                  '${l10n.progress}: ${widget.loan!.progressPercentage.toStringAsFixed(1)}%',
                                 ),
                               ],
                             ),
@@ -307,6 +349,11 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       final principal = double.parse(_principalController.text);
       final monthlyPayment = double.parse(_monthlyPaymentController.text);
       final interestRate = double.parse(_interestRateController.text);
+      
+      // Use remaining balance if provided, otherwise use principal amount
+      final remainingBalance = _remainingBalanceController.text.trim().isEmpty 
+        ? principal 
+        : double.parse(_remainingBalanceController.text);
 
       if (isEditing) {
         final updatedLoan = widget.loan!;
@@ -318,6 +365,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
           startDate: _startDate,
           endDate: _hasEndDate ? _endDate : null,
         );
+        // Update remaining balance separately
+        updatedLoan.remainingBalance = remainingBalance;
+        updatedLoan.updatedAt = DateTime.now();
         await loanProvider.updateLoan(updatedLoan);
       } else {
         final newLoan = Loan.create(
@@ -328,6 +378,8 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
           startDate: _startDate,
           endDate: _hasEndDate ? _endDate : null,
         );
+        // Set custom remaining balance if provided
+        newLoan.remainingBalance = remainingBalance;
         await loanProvider.addLoan(newLoan);
       }
 

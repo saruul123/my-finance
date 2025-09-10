@@ -25,6 +25,12 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       notificationsEnabled: fields[6] as bool,
       appLockEnabled: fields[7] as bool,
       googleDriveFolderId: fields[8] as String,
+      darkModeEnabled: fields[12] as bool,
+      khanBankUsername: fields[13] == null ? '' : fields[13] as String,
+      khanBankAccount: fields[14] == null ? '' : fields[14] as String,
+      khanBankDeviceId: fields[15] == null ? '' : fields[15] as String,
+      khanBankPassword: fields[16] == null ? '' : fields[16] as String,
+      khanBankEnabled: fields[17] == null ? false : fields[17] as bool,
       lastSyncDate: fields[9] as DateTime,
       createdAt: fields[10] as DateTime,
       updatedAt: fields[11] as DateTime,
@@ -34,7 +40,7 @@ class SettingsAdapter extends TypeAdapter<Settings> {
   @override
   void write(BinaryWriter writer, Settings obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(17)
       ..writeByte(1)
       ..write(obj.defaultExportFormat)
       ..writeByte(2)
@@ -56,7 +62,19 @@ class SettingsAdapter extends TypeAdapter<Settings> {
       ..writeByte(10)
       ..write(obj.createdAt)
       ..writeByte(11)
-      ..write(obj.updatedAt);
+      ..write(obj.updatedAt)
+      ..writeByte(12)
+      ..write(obj.darkModeEnabled)
+      ..writeByte(13)
+      ..write(obj.khanBankUsername)
+      ..writeByte(14)
+      ..write(obj.khanBankAccount)
+      ..writeByte(15)
+      ..write(obj.khanBankDeviceId)
+      ..writeByte(16)
+      ..write(obj.khanBankPassword)
+      ..writeByte(17)
+      ..write(obj.khanBankEnabled);
   }
 
   @override
