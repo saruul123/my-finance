@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/settings_provider.dart';
 import '../services/auto_fetch_service.dart';
 import '../widgets/transaction_list_item.dart';
 import '../l10n/app_localizations.dart';
@@ -78,44 +79,100 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   Widget _buildLastUpdatedHeader() {
     return Consumer<AutoFetchService>(
       builder: (context, autoFetchService, child) {
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            gradient: LinearGradient(
+              colors: [
+                Colors.blue.withOpacity(0.05),
+                Colors.indigo.withOpacity(0.08),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                color: Colors.blue.withOpacity(0.2),
                 width: 1,
               ),
             ),
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.sync,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Сүүлд шинэчлэгдсэн: ${autoFetchService.getLastUpdatedText()}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ),
-              const Spacer(),
-              if (autoFetchService.isFetching)
-                SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
-                    ),
+                child: AnimatedRotation(
+                  duration: const Duration(milliseconds: 1000),
+                  turns: autoFetchService.isFetching ? 1 : 0,
+                  child: Icon(
+                    Icons.sync,
+                    size: 16,
+                    color: Colors.blue.shade600,
                   ),
                 ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Сүүлд шинэчлэгдсэн',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      autoFetchService.getLastUpdatedText(),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.blue.shade800,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (autoFetchService.isFetching) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue.shade600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Шинэчилж байна...',
+                        style: TextStyle(
+                          color: Colors.blue.shade600,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         );
@@ -400,11 +457,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ),
       body: Column(
         children: [
+          _buildEnhancedTransactionHeader(),
           _buildLastUpdatedHeader(),
           if (_showFilters) _buildFiltersSection(),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _onRefresh,
+              backgroundColor: Colors.white,
+              color: Colors.blue,
+              strokeWidth: 3,
+              displacement: 60,
               child: Consumer<TransactionProvider>(
                 builder: (context, provider, child) {
                   final transactions = provider.transactions;
@@ -738,5 +800,223 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         transaction.id,
       );
     }
+  }
+
+  Widget _buildEnhancedTransactionHeader() {
+    return Consumer2<TransactionProvider, SettingsProvider>(
+      builder: (context, transactionProvider, settingsProvider, child) {
+        final transactions = transactionProvider.transactions;
+        
+        // Calculate current month stats
+        final now = DateTime.now();
+        final currentMonthTransactions = transactions.where((t) =>
+          t.date.month == now.month && t.date.year == now.year
+        ).toList();
+        
+        double monthlyIncome = 0;
+        double monthlyExpense = 0;
+        
+        for (final transaction in currentMonthTransactions) {
+          if (transaction.type == TransactionType.income) {
+            monthlyIncome += transaction.amount;
+          } else {
+            monthlyExpense += transaction.amount;
+          }
+        }
+        
+        final monthlyNet = monthlyIncome - monthlyExpense;
+        
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.purple.shade600,
+                Colors.deepPurple.shade700,
+                Colors.indigo.shade700,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.purple.withOpacity(0.3),
+                blurRadius: 25,
+                offset: const Offset(0, 12),
+                spreadRadius: -5,
+              ),
+              BoxShadow(
+                color: Colors.white.withOpacity(0.1),
+                blurRadius: 1,
+                offset: const Offset(1, 1),
+                spreadRadius: 0,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Энэ сарын төлөв',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          settingsProvider.formatAmount(monthlyNet),
+                          style: TextStyle(
+                            color: monthlyNet >= 0 ? Colors.greenAccent.shade100 : Colors.redAccent.shade100,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      '${currentMonthTransactions.length} гүйлгээ',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.15),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.trending_up,
+                                color: Colors.greenAccent.shade200,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Орлого',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            settingsProvider.formatAmount(monthlyIncome),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: Colors.white.withOpacity(0.2),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.trending_down,
+                                color: Colors.redAccent.shade200,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Зарлага',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            settingsProvider.formatAmount(monthlyExpense),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

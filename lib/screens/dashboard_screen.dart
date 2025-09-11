@@ -4,6 +4,7 @@ import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/loan_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/auto_fetch_service.dart';
 import '../widgets/transaction_list_item.dart';
 import '../l10n/app_localizations.dart';
 import 'transaction_form_screen.dart';
@@ -46,30 +47,101 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
+        backgroundColor: Colors.white,
+        color: Colors.blue,
+        strokeWidth: 3,
+        displacement: 50,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildBalanceSection(),
-              _buildQuickActions(),
-              _buildSummaryCards(),
-              _buildRecentTransactions(),
-              _buildLoanOverview(),
-            ],
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildBalanceSection(),
+                _buildQuickActions(),
+                _buildSummaryCards(),
+                _buildRecentTransactions(),
+                _buildLoanOverview(),
+                const SizedBox(height: 100), // Extra space for FAB
+              ],
+            ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addTransaction,
-        child: const Icon(Icons.add),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Theme.of(context).primaryColor.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: _addTransaction,
+          backgroundColor: Theme.of(context).primaryColor,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          icon: const Icon(Icons.add_circle_outline),
+          label: const Text(
+            'Гүйлгээ нэмэх',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
     );
   }
 
   Future<void> _refreshData() async {
-    context.read<TransactionProvider>().loadTransactions();
-    context.read<LoanProvider>().loadAll();
+    final autoFetchService = context.read<AutoFetchService>();
+    
+    try {
+      // Fetch Khan Bank transactions first
+      await autoFetchService.fetchTransactions(context, showLoading: false);
+      
+      if (mounted) {
+        // Reload local data after fetch
+        context.read<TransactionProvider>().loadTransactions();
+        context.read<LoanProvider>().loadAll();
+        
+        // Show error message if fetch failed
+        if (autoFetchService.lastError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Шинэчлэхэд алдаа: ${autoFetchService.lastError}'),
+              backgroundColor: Colors.orange,
+              action: SnackBarAction(
+                label: 'Дахин оролдох',
+                textColor: Colors.white,
+                onPressed: () => _refreshData(),
+              ),
+            ),
+          );
+          autoFetchService.clearError();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        // Reload local data even if fetch fails
+        context.read<TransactionProvider>().loadTransactions();
+        context.read<LoanProvider>().loadAll();
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Дахин оролдох',
+              textColor: Colors.white,
+              onPressed: () => _refreshData(),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildBalanceSection() {
@@ -80,55 +152,145 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final monthlyBalance = transactionProvider.currentMonthBalance;
         final isPositive = totalBalance >= 0;
 
-        return Container(
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
           margin: const EdgeInsets.all(16),
           child: Card(
-            elevation: 4,
+            elevation: 8,
+            shadowColor: isPositive ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(20),
                 gradient: LinearGradient(
                   colors: isPositive
-                      ? [Colors.green.shade400, Colors.green.shade600]
-                      : [Colors.red.shade400, Colors.red.shade600],
+                      ? [
+                          Colors.green.shade400,
+                          Colors.green.shade600,
+                          Colors.green.shade700,
+                        ]
+                      : [
+                          Colors.red.shade400,
+                          Colors.red.shade600,
+                          Colors.red.shade700,
+                        ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
+                  stops: const [0.0, 0.6, 1.0],
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isPositive ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.totalBalance,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${isPositive ? '+' : ''}${settingsProvider.formatAmount(totalBalance)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.calendar_month,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${l10n.thisMonth}: ${settingsProvider.formatAmount(monthlyBalance)}',
-                        style: const TextStyle(
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          isPositive ? Icons.trending_up : Icons.trending_down,
                           color: Colors.white,
-                          fontSize: 14,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.totalBalance,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 16),
+                  AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 300),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.3),
+                          offset: const Offset(0, 2),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      '${isPositive ? '+' : ''}${settingsProvider.formatAmount(totalBalance)}',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.calendar_month,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.thisMonth,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                settingsProvider.formatAmount(monthlyBalance),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          monthlyBalance >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                          color: Colors.white.withOpacity(0.8),
+                          size: 18,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -144,48 +306,118 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context) {
         final l10n = AppLocalizations.of(context)!;
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
               Expanded(
                 child: Card(
+                  elevation: 4,
+                  shadowColor: Colors.green.withOpacity(0.2),
                   child: InkWell(
                     onTap: () => _addTransaction(TransactionType.income),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.green.shade50,
+                            Colors.green.shade100,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Column(
                         children: [
-                          const Icon(
-                            Icons.trending_up,
-                            color: Colors.green,
-                            size: 32,
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.green.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.add_circle_outline,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(l10n.addIncome),
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.addIncome,
+                            style: TextStyle(
+                              color: Colors.green.shade800,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
                 child: Card(
+                  elevation: 4,
+                  shadowColor: Colors.red.withOpacity(0.2),
                   child: InkWell(
                     onTap: () => _addTransaction(TransactionType.expense),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.red.shade50,
+                            Colors.red.shade100,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
                       child: Column(
                         children: [
-                          const Icon(
-                            Icons.trending_down,
-                            color: Colors.red,
-                            size: 32,
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.red.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.remove_circle_outline,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(l10n.addExpense),
+                          const SizedBox(height: 12),
+                          Text(
+                            l10n.addExpense,
+                            style: TextStyle(
+                              color: Colors.red.shade800,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
                       ),
                     ),
@@ -233,28 +465,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Row(
             children: [
               Expanded(
-                child: TransactionSummaryCard(
+                child: _buildSummaryCard(
                   title: l10n.income,
                   amount: transactionProvider.totalIncome,
-                  currency: '₮',
                   color: Colors.green,
                   icon: Icons.trending_up,
+                  settingsProvider: settingsProvider,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
-                child: TransactionSummaryCard(
+                child: _buildSummaryCard(
                   title: l10n.expenses,
                   amount: transactionProvider.totalExpenses,
-                  currency: '₮',
                   color: Colors.red,
                   icon: Icons.trending_down,
+                  settingsProvider: settingsProvider,
                 ),
               ),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSummaryCard({
+    required String title,
+    required double amount,
+    required Color color,
+    required IconData icon,
+    required SettingsProvider settingsProvider,
+  }) {
+    return Card(
+      elevation: 6,
+      shadowColor: color.withOpacity(0.2),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              color.withOpacity(0.05),
+              color.withOpacity(0.1),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 20,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '₮',
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: TextStyle(
+                color: color,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+              child: Text(
+                settingsProvider.formatAmount(amount),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
