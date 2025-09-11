@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../providers/settings_provider.dart';
@@ -51,7 +50,7 @@ class AutoFetchService extends ChangeNotifier {
     if (isAppLaunch) {
       return true;
     }
-    
+
     if (_lastSyncTime == null) {
       return true;
     }
@@ -60,7 +59,10 @@ class AutoFetchService extends ChangeNotifier {
     return timeSinceLastSync > _backgroundThreshold;
   }
 
-  Future<bool> fetchTransactions(BuildContext context, {bool showLoading = false}) async {
+  Future<bool> fetchTransactions(
+    BuildContext context, {
+    bool showLoading = false,
+  }) async {
     if (_isFetching) return false;
 
     try {
@@ -69,7 +71,7 @@ class AutoFetchService extends ChangeNotifier {
       notifyListeners();
 
       final settingsProvider = context.read<SettingsProvider>();
-      
+
       if (!_isConfigured(settingsProvider)) {
         _lastError = 'Khan Bank мэдээлэл тохируулаагүй байна';
         return false;
@@ -78,7 +80,14 @@ class AutoFetchService extends ChangeNotifier {
       // Set date range to yesterday-today for auto-fetch
       final now = DateTime.now();
       final yesterday = now.subtract(const Duration(days: 1));
-      final startDate = DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0, 0);
+      final startDate = DateTime(
+        yesterday.year,
+        yesterday.month,
+        yesterday.day,
+        0,
+        0,
+        0,
+      );
       final endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
       final startTimeMs = startDate.millisecondsSinceEpoch.toString();
@@ -93,8 +102,10 @@ class AutoFetchService extends ChangeNotifier {
       );
 
       // Login to Khan Bank
-      final loginSuccess = await khanBankService.login(settingsProvider.khanBankPassword);
-      
+      final loginSuccess = await khanBankService.login(
+        settingsProvider.khanBankPassword,
+      );
+
       if (!loginSuccess) {
         _lastError = 'Khan Bank нэвтэрхэд алдаа гарлаа';
         return false;
@@ -102,7 +113,7 @@ class AutoFetchService extends ChangeNotifier {
 
       // Download transactions
       final result = await khanBankService.downloadTransactions();
-      
+
       if (result == null) {
         _lastError = 'Гүйлгээ татахад алдаа гарлаа';
         return false;
@@ -110,12 +121,13 @@ class AutoFetchService extends ChangeNotifier {
 
       // Convert and save transactions
       final transactions = khanBankService.convertToAppTransactions(result);
-      
+
       if (context.mounted) {
         final transactionProvider = context.read<TransactionProvider>();
-        final existingTransactions = DatabaseService.instance.getAllTransactions();
+        final existingTransactions = DatabaseService.instance
+            .getAllTransactions();
         final existingIds = existingTransactions.map((t) => t.id).toSet();
-        
+
         int addedCount = 0;
         for (final transaction in transactions) {
           if (!existingIds.contains(transaction.id)) {
@@ -123,15 +135,15 @@ class AutoFetchService extends ChangeNotifier {
             addedCount++;
           }
         }
-        
+
         // Update sync time on successful fetch
         _lastSyncTime = DateTime.now();
         await _saveLastSyncTime();
-        
+
         debugPrint('Auto-fetch completed: $addedCount new transactions');
         return true;
       }
-      
+
       return false;
     } catch (e) {
       _lastError = 'Гүйлгээ шинэчлэхэд алдаа гарлаа: ${e.toString()}';
@@ -145,9 +157,9 @@ class AutoFetchService extends ChangeNotifier {
 
   bool _isConfigured(SettingsProvider provider) {
     return provider.khanBankUsername.isNotEmpty &&
-           provider.khanBankAccount.isNotEmpty &&
-           provider.khanBankDeviceId.isNotEmpty &&
-           provider.khanBankPassword.isNotEmpty;
+        provider.khanBankAccount.isNotEmpty &&
+        provider.khanBankDeviceId.isNotEmpty &&
+        provider.khanBankPassword.isNotEmpty;
   }
 
   void clearError() {
@@ -159,10 +171,10 @@ class AutoFetchService extends ChangeNotifier {
     if (_lastSyncTime == null) {
       return 'Хэзээ ч шинэчлээгүй';
     }
-    
+
     final now = DateTime.now();
     final difference = now.difference(_lastSyncTime!);
-    
+
     if (difference.inMinutes < 1) {
       return 'Сая шинэчлэгдсэн';
     } else if (difference.inMinutes < 60) {

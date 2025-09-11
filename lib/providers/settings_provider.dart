@@ -49,7 +49,7 @@ class SettingsProvider extends ChangeNotifier {
       khanBankPassword: khanBankPassword,
       khanBankEnabled: khanBankEnabled,
     );
-    
+
     _settings = currentSettings;
     await _databaseService.updateSettings(currentSettings);
     notifyListeners();
@@ -95,7 +95,7 @@ class SettingsProvider extends ChangeNotifier {
   String get lastSyncDateFormatted {
     final now = DateTime.now();
     final difference = now.difference(settings.lastSyncDate);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} days ago';
     } else if (difference.inHours > 0) {
@@ -124,7 +124,7 @@ class SettingsProvider extends ChangeNotifier {
 
   // Always return MNT symbol
   String get currencySymbol => '₮';
-  
+
   // Format amount with ₮ symbol and thousand separators
   String formatAmount(double amount) {
     return '${NumberFormat('#,##0').format(amount)} ₮';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/categorization_rule.dart';
 import '../services/categorization_service.dart';
-import '../l10n/app_localizations.dart';
 
 class CategorizationSettingsScreen extends StatefulWidget {
   const CategorizationSettingsScreen({super.key});

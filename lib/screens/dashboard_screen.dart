@@ -37,12 +37,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: Text(l10n.myFinance),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // Navigate to settings
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.settings),
+          //   onPressed: () {
+          //     // Navigate to settings
+          //   },
+          // ),
         ],
       ),
       body: RefreshIndicator(
@@ -59,8 +59,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildBalanceSection(),
-                _buildQuickActions(),
-                _buildSummaryCards(),
                 _buildRecentTransactions(),
                 _buildLoanOverview(),
                 const SizedBox(height: 100), // Extra space for FAB
@@ -97,16 +95,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _refreshData() async {
     final autoFetchService = context.read<AutoFetchService>();
-    
+
     try {
       // Fetch Khan Bank transactions first
       await autoFetchService.fetchTransactions(context, showLoading: false);
-      
+
       if (mounted) {
         // Reload local data after fetch
         context.read<TransactionProvider>().loadTransactions();
         context.read<LoanProvider>().loadAll();
-        
+
         // Show error message if fetch failed
         if (autoFetchService.lastError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -128,10 +126,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         // Reload local data even if fetch fails
         context.read<TransactionProvider>().loadTransactions();
         context.read<LoanProvider>().loadAll();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.'),
+            content: const Text(
+              'Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.',
+            ),
             backgroundColor: Colors.red,
             action: SnackBarAction(
               label: 'Дахин оролдох',
@@ -157,7 +157,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           margin: const EdgeInsets.all(16),
           child: Card(
             elevation: 8,
-            shadowColor: isPositive ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+            shadowColor: isPositive
+                ? Colors.green.withOpacity(0.3)
+                : Colors.red.withOpacity(0.3),
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -180,7 +182,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: isPositive ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                    color: isPositive
+                        ? Colors.green.withOpacity(0.2)
+                        : Colors.red.withOpacity(0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -285,7 +289,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         Icon(
-                          monthlyBalance >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                          monthlyBalance >= 0
+                              ? Icons.arrow_upward
+                              : Icons.arrow_downward,
                           color: Colors.white.withOpacity(0.8),
                           size: 18,
                         ),
@@ -298,281 +304,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildQuickActions() {
-    return Builder(
-      builder: (context) {
-        final l10n = AppLocalizations.of(context)!;
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Card(
-                  elevation: 4,
-                  shadowColor: Colors.green.withOpacity(0.2),
-                  child: InkWell(
-                    onTap: () => _addTransaction(TransactionType.income),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.green.shade50,
-                            Colors.green.shade100,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.green.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.add_circle_outline,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n.addIncome,
-                            style: TextStyle(
-                              color: Colors.green.shade800,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Card(
-                  elevation: 4,
-                  shadowColor: Colors.red.withOpacity(0.2),
-                  child: InkWell(
-                    onTap: () => _addTransaction(TransactionType.expense),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.red.shade50,
-                            Colors.red.shade100,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.red.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.remove_circle_outline,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n.addExpense,
-                            style: TextStyle(
-                              color: Colors.red.shade800,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Card(
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const TransactionsScreen(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.list, color: Colors.blue, size: 32),
-                          const SizedBox(height: 8),
-                          Text(l10n.viewAll),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSummaryCards() {
-    return Consumer2<TransactionProvider, SettingsProvider>(
-      builder: (context, transactionProvider, settingsProvider, child) {
-        final l10n = AppLocalizations.of(context)!;
-        return Container(
-          margin: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildSummaryCard(
-                  title: l10n.income,
-                  amount: transactionProvider.totalIncome,
-                  color: Colors.green,
-                  icon: Icons.trending_up,
-                  settingsProvider: settingsProvider,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSummaryCard(
-                  title: l10n.expenses,
-                  amount: transactionProvider.totalExpenses,
-                  color: Colors.red,
-                  icon: Icons.trending_down,
-                  settingsProvider: settingsProvider,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSummaryCard({
-    required String title,
-    required double amount,
-    required Color color,
-    required IconData icon,
-    required SettingsProvider settingsProvider,
-  }) {
-    return Card(
-      elevation: 6,
-      shadowColor: color.withOpacity(0.2),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [
-              color.withOpacity(0.05),
-              color.withOpacity(0.1),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 20,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '₮',
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 8),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 300),
-              style: TextStyle(
-                color: color,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-              ),
-              child: Text(
-                settingsProvider.formatAmount(amount),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

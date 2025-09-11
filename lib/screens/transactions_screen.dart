@@ -36,14 +36,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   Future<void> _onRefresh() async {
     final autoFetchService = context.read<AutoFetchService>();
-    
+
     try {
       await autoFetchService.fetchTransactions(context, showLoading: false);
-      
+
       if (mounted) {
         // Reload local transactions after fetch
         context.read<TransactionProvider>().loadTransactions();
-        
+
         // Show success/error message
         if (autoFetchService.lastError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +63,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.'),
+            content: const Text(
+              'Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.',
+            ),
             backgroundColor: Colors.red,
             action: SnackBarAction(
               label: 'Дахин оролдох',
@@ -93,10 +95,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               end: Alignment.centerRight,
             ),
             border: Border(
-              bottom: BorderSide(
-                color: Colors.blue.withOpacity(0.2),
-                width: 1,
-              ),
+              bottom: BorderSide(color: Colors.blue.withOpacity(0.2), width: 1),
             ),
           ),
           child: Row(
@@ -142,7 +141,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               ),
               if (autoFetchService.isFetching) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.blue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -180,11 +182,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _buildSummarySection(List<Transaction> transactions, AppLocalizations l10n) {
+  Widget _buildSummarySection(
+    List<Transaction> transactions,
+    AppLocalizations l10n,
+  ) {
     // Calculate totals
     double totalIncome = 0;
     double totalExpense = 0;
-    
+
     for (final transaction in transactions) {
       if (transaction.type == TransactionType.income) {
         totalIncome += transaction.amount;
@@ -192,9 +197,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         totalExpense += transaction.amount;
       }
     }
-    
+
     final totalNet = totalIncome - totalExpense;
-    
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -225,11 +230,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               const SizedBox(width: 8),
-              Text(
-                '${l10n.financialSummary} (${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'})',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+              Expanded(
+                child: Text(
+                  '${l10n.financialSummary} (${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'})',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
               ),
             ],
@@ -270,7 +277,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _buildSummaryItem(String title, double amount, IconData icon, Color color) {
+  Widget _buildSummaryItem(
+    String title,
+    double amount,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -278,7 +290,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         Text(
           title,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimaryContainer.withOpacity(0.8),
           ),
         ),
         const SizedBox(height: 2),
@@ -293,10 +307,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _buildGroupedTransactionsList(List<Transaction> transactions, AppLocalizations l10n) {
+  Widget _buildGroupedTransactionsList(
+    List<Transaction> transactions,
+    AppLocalizations l10n,
+  ) {
     // Group transactions by date
     final Map<String, List<Transaction>> groupedTransactions = {};
-    
+
     for (final transaction in transactions) {
       final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
       if (!groupedTransactions.containsKey(dateKey)) {
@@ -315,17 +332,21 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         final dateKey = sortedDates[index];
         final dayTransactions = groupedTransactions[dateKey]!;
         final date = DateTime.parse(dateKey);
-        
+
         return _buildDayGroup(date, dayTransactions, l10n);
       },
     );
   }
 
-  Widget _buildDayGroup(DateTime date, List<Transaction> transactions, AppLocalizations l10n) {
+  Widget _buildDayGroup(
+    DateTime date,
+    List<Transaction> transactions,
+    AppLocalizations l10n,
+  ) {
     // Calculate daily totals
     double dayIncome = 0;
     double dayExpense = 0;
-    
+
     for (final transaction in transactions) {
       if (transaction.type == TransactionType.income) {
         dayIncome += transaction.amount;
@@ -333,13 +354,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         dayExpense += transaction.amount;
       }
     }
-    
+
     final dayNet = dayIncome - dayExpense;
-    final isToday = DateFormat('yyyy-MM-dd').format(DateTime.now()) == 
-                   DateFormat('yyyy-MM-dd').format(date);
-    final isYesterday = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 1))) == 
-                       DateFormat('yyyy-MM-dd').format(date);
-    
+    final isToday =
+        DateFormat('yyyy-MM-dd').format(DateTime.now()) ==
+        DateFormat('yyyy-MM-dd').format(date);
+    final isYesterday =
+        DateFormat(
+          'yyyy-MM-dd',
+        ).format(DateTime.now().subtract(const Duration(days: 1))) ==
+        DateFormat('yyyy-MM-dd').format(date);
+
     String dateTitle;
     if (isToday) {
       dateTitle = l10n.today;
@@ -358,7 +383,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
@@ -379,7 +406,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   Text(
                     '${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ],
@@ -392,7 +421,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     const SizedBox(width: 4),
                     Text(
                       '₮${NumberFormat('#,##0.00').format(dayIncome)}',
-                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(width: 16),
                   ],
@@ -401,15 +433,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     const SizedBox(width: 4),
                     Text(
                       '₮${NumberFormat('#,##0.00').format(dayExpense)}',
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(width: 16),
                   ],
                   const Spacer(),
-                  Text(
-                    'Net: ',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text('Net: ', style: Theme.of(context).textTheme.bodySmall),
                   Text(
                     '₮${NumberFormat('#,##0.00').format(dayNet)}',
                     style: TextStyle(
@@ -423,11 +455,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           ),
         ),
         // Transactions for this day
-        ...transactions.map((transaction) => TransactionListItem(
-              transaction: transaction,
-              onTap: () => _editTransaction(transaction),
-              onDelete: () => _deleteTransaction(transaction),
-            )),
+        ...transactions.map(
+          (transaction) => TransactionListItem(
+            transaction: transaction,
+            onTap: () => _editTransaction(transaction),
+            onDelete: () => _deleteTransaction(transaction),
+          ),
+        ),
         const SizedBox(height: 8),
       ],
     );
@@ -436,7 +470,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.transactions),
@@ -479,11 +513,18 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.receipt_long, size: 64, color: Colors.grey),
+                                const Icon(
+                                  Icons.receipt_long,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
                                 const SizedBox(height: 16),
                                 Text(
                                   l10n.noTransactionsYet,
-                                  style: const TextStyle(fontSize: 18, color: Colors.grey),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -493,9 +534,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 const SizedBox(height: 16),
                                 Text(
                                   'Татаж авахын тулд доош татна уу',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.grey,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -514,10 +554,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
                             // Group transactions by date
-                            final Map<String, List<Transaction>> groupedTransactions = {};
-                            
+                            final Map<String, List<Transaction>>
+                            groupedTransactions = {};
+
                             for (final transaction in transactions) {
-                              final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
+                              final dateKey = DateFormat(
+                                'yyyy-MM-dd',
+                              ).format(transaction.date);
                               if (!groupedTransactions.containsKey(dateKey)) {
                                 groupedTransactions[dateKey] = [];
                               }
@@ -525,22 +568,27 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             }
 
                             // Sort dates in descending order (newest first)
-                            final sortedDates = groupedTransactions.keys.toList()
-                              ..sort((a, b) => b.compareTo(a));
+                            final sortedDates =
+                                groupedTransactions.keys.toList()
+                                  ..sort((a, b) => b.compareTo(a));
 
                             if (index >= sortedDates.length) return null;
 
                             final dateKey = sortedDates[index];
-                            final dayTransactions = groupedTransactions[dateKey]!;
+                            final dayTransactions =
+                                groupedTransactions[dateKey]!;
                             final date = DateTime.parse(dateKey);
-                            
+
                             return _buildDayGroup(date, dayTransactions, l10n);
                           },
                           childCount: () {
                             // Calculate number of unique dates
-                            final Map<String, List<Transaction>> groupedTransactions = {};
+                            final Map<String, List<Transaction>>
+                            groupedTransactions = {};
                             for (final transaction in transactions) {
-                              final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
+                              final dateKey = DateFormat(
+                                'yyyy-MM-dd',
+                              ).format(transaction.date);
                               if (!groupedTransactions.containsKey(dateKey)) {
                                 groupedTransactions[dateKey] = [];
                               }
@@ -775,12 +823,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       context: context,
       builder: (context) {
         final l10n = AppLocalizations.of(context)!;
-        
+
         return AlertDialog(
           title: Text(l10n.deleteTransaction),
-          content: Text(
-            l10n.deleteTransactionConfirmation,
-          ),
+          content: Text(l10n.deleteTransactionConfirmation),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -806,16 +852,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Consumer2<TransactionProvider, SettingsProvider>(
       builder: (context, transactionProvider, settingsProvider, child) {
         final transactions = transactionProvider.transactions;
-        
+
         // Calculate current month stats
         final now = DateTime.now();
-        final currentMonthTransactions = transactions.where((t) =>
-          t.date.month == now.month && t.date.year == now.year
-        ).toList();
-        
+        final currentMonthTransactions = transactions
+            .where((t) => t.date.month == now.month && t.date.year == now.year)
+            .toList();
+
         double monthlyIncome = 0;
         double monthlyExpense = 0;
-        
+
         for (final transaction in currentMonthTransactions) {
           if (transaction.type == TransactionType.income) {
             monthlyIncome += transaction.amount;
@@ -823,9 +869,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             monthlyExpense += transaction.amount;
           }
         }
-        
+
         final monthlyNet = monthlyIncome - monthlyExpense;
-        
+
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           padding: const EdgeInsets.all(24),
@@ -893,7 +939,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         Text(
                           settingsProvider.formatAmount(monthlyNet),
                           style: TextStyle(
-                            color: monthlyNet >= 0 ? Colors.greenAccent.shade100 : Colors.redAccent.shade100,
+                            color: monthlyNet >= 0
+                                ? Colors.greenAccent.shade100
+                                : Colors.redAccent.shade100,
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
@@ -903,7 +951,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../models/transaction.dart';
 import 'categorization_service.dart';
@@ -135,7 +134,9 @@ class KhanBankService {
     // Filter out empty parameters and build clean query string
     final filteredParams = <String, String>{};
     for (final entry in params.entries) {
-      if (entry.value.isNotEmpty && entry.key != "beneficiaryAccountId" && entry.key != "transactionRemarks") {
+      if (entry.value.isNotEmpty &&
+          entry.key != "beneficiaryAccountId" &&
+          entry.key != "transactionRemarks") {
         filteredParams[entry.key] = entry.value;
       }
     }
@@ -250,7 +251,6 @@ class KhanBankService {
         'kb_${kbTransaction.transactionDate}_${kbTransaction.txnTime}_${amount.abs()}_${kbTransaction.transactionRemarks.hashCode}';
     return uniqueString;
   }
-
 }
 
 /// Khan Bank transaction result model

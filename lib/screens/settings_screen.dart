@@ -9,7 +9,6 @@ import '../providers/loan_provider.dart';
 import '../services/export_service.dart';
 import '../services/database_service.dart';
 import '../services/khan_bank_service.dart';
-import '../services/auto_fetch_service.dart';
 import '../l10n/app_localizations.dart';
 import 'categorization_settings_screen.dart';
 
@@ -23,13 +22,13 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _fileNamingController = TextEditingController();
   final _reminderDaysController = TextEditingController();
-  
+
   // Khan Bank controllers
   final _usernameController = TextEditingController();
   final _accountController = TextEditingController();
   final _deviceIdController = TextEditingController();
   final _passwordController = TextEditingController();
-  
+
   bool _isPasswordVisible = false;
   DateTime? _startDate;
   DateTime? _endDate;
@@ -43,17 +42,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _fileNamingController.text = settingsProvider.fileNamingScheme;
       _reminderDaysController.text = settingsProvider.reminderDaysBefore
           .toString();
-      
+
       // Initialize Khan Bank fields
       _usernameController.text = settingsProvider.khanBankUsername;
       _accountController.text = settingsProvider.khanBankAccount;
       _deviceIdController.text = settingsProvider.khanBankDeviceId;
       _passwordController.text = settingsProvider.khanBankPassword;
-      
+
       // Set default to Yesterday - Today
       final now = DateTime.now();
       final yesterday = now.subtract(const Duration(days: 1));
-      _startDate = DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0, 0);
+      _startDate = DateTime(
+        yesterday.year,
+        yesterday.month,
+        yesterday.day,
+        0,
+        0,
+        0,
+      );
       _endDate = DateTime(now.year, now.month, now.day, 23, 59, 59);
     });
   }
@@ -345,7 +351,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildKhanBankSection(SettingsProvider provider, AppLocalizations l10n) {
+  Widget _buildKhanBankSection(
+    SettingsProvider provider,
+    AppLocalizations l10n,
+  ) {
     return Card(
       margin: const EdgeInsets.all(16),
       child: Column(
@@ -407,7 +416,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.grey,
                       ),
                       onPressed: () {
@@ -479,10 +490,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   const Text(
                                     'Эхлэх огноо',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                   Text(
-                                    _startDate != null 
+                                    _startDate != null
                                         ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
                                         : 'Огноо сонгох',
                                   ),
@@ -512,10 +526,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 children: [
                                   const Text(
                                     'Дуусах огноо',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
                                   ),
                                   Text(
-                                    _endDate != null 
+                                    _endDate != null
                                         ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
                                         : 'Огноо сонгох',
                                   ),
@@ -533,8 +550,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: _isConfigured(provider) && _startDate != null && _endDate != null 
-                        ? () => _downloadTransactions(provider) 
+                    onPressed:
+                        _isConfigured(provider) &&
+                            _startDate != null &&
+                            _endDate != null
+                        ? () => _downloadTransactions(provider)
                         : null,
                     icon: const Icon(Icons.download),
                     label: Text(l10n.downloadTransactions),
@@ -942,8 +962,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(days: 1));
     setState(() {
-      _startDate = DateTime(yesterday.year, yesterday.month, yesterday.day, 0, 0, 0);
-      _endDate = DateTime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59);
+      _startDate = DateTime(
+        yesterday.year,
+        yesterday.month,
+        yesterday.day,
+        0,
+        0,
+        0,
+      );
+      _endDate = DateTime(
+        yesterday.year,
+        yesterday.month,
+        yesterday.day,
+        23,
+        59,
+        59,
+      );
     });
   }
 
@@ -958,7 +992,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _startDate ?? DateTime.now().subtract(const Duration(days: 1)),
+      initialDate:
+          _startDate ?? DateTime.now().subtract(const Duration(days: 1)),
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
@@ -985,14 +1020,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   bool _isConfigured(SettingsProvider provider) {
     return provider.khanBankUsername.isNotEmpty &&
-           provider.khanBankAccount.isNotEmpty &&
-           provider.khanBankDeviceId.isNotEmpty &&
-           provider.khanBankPassword.isNotEmpty;
+        provider.khanBankAccount.isNotEmpty &&
+        provider.khanBankDeviceId.isNotEmpty &&
+        provider.khanBankPassword.isNotEmpty;
   }
 
   Future<void> _downloadTransactions(SettingsProvider provider) async {
     final l10n = AppLocalizations.of(context)!;
-    
+
     if (!_isConfigured(provider)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1047,14 +1082,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
       // Login to Khan Bank
-      final loginSuccess = await khanBankService.login(provider.khanBankPassword);
+      final loginSuccess = await khanBankService.login(
+        provider.khanBankPassword,
+      );
 
       if (!loginSuccess) {
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Khan Bank нэвтэрхэд алдаа гарлаа. Нэвтрэх мэдээлэлээ шалгана уу.'),
+              content: Text(
+                'Khan Bank нэвтэрхэд алдаа гарлаа. Нэвтрэх мэдээлэлээ шалгана уу.',
+              ),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 5),
             ),
@@ -1071,7 +1110,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Гүйлгээ татахад алдаа гарлаа. Огнооны интервал эсвэл данс дугаар шалгана уу.'),
+              content: Text(
+                'Гүйлгээ татахад алдаа гарлаа. Огнооны интервал эсвэл данс дугаар шалгана уу.',
+              ),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 5),
             ),
@@ -1082,14 +1123,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Convert and save transactions
       final transactions = khanBankService.convertToAppTransactions(result);
-      
+
       int addedCount = 0;
       int duplicateCount = 0;
       if (mounted) {
         final transactionProvider = context.read<TransactionProvider>();
-        final existingTransactions = DatabaseService.instance.getAllTransactions();
+        final existingTransactions = DatabaseService.instance
+            .getAllTransactions();
         final existingIds = existingTransactions.map((t) => t.id).toSet();
-        
+
         for (final transaction in transactions) {
           if (!existingIds.contains(transaction.id)) {
             await transactionProvider.addTransaction(transaction);
@@ -1109,11 +1151,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         String message;
         if (duplicateCount > 0) {
-          message = '${l10n.transactionsDownloaded}: $addedCount шинэ, $duplicateCount давхардсан';
+          message =
+              '${l10n.transactionsDownloaded}: $addedCount шинэ, $duplicateCount давхардсан';
         } else {
-          message = '${l10n.transactionsDownloaded}: $addedCount ${l10n.transactions}';
+          message =
+              '${l10n.transactionsDownloaded}: $addedCount ${l10n.transactions}';
         }
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
@@ -1142,5 +1186,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
 }

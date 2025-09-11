@@ -39,16 +39,16 @@ class _LoansScreenState extends State<LoansScreen>
 
   Future<void> _onRefresh() async {
     final autoFetchService = context.read<AutoFetchService>();
-    
+
     try {
       // Fetch Khan Bank transactions first
       await autoFetchService.fetchTransactions(context, showLoading: false);
-      
+
       if (mounted) {
         // Reload local data after fetch
         context.read<TransactionProvider>().loadTransactions();
         context.read<LoanProvider>().loadAll();
-        
+
         // Show error message if fetch failed
         if (autoFetchService.lastError != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -70,10 +70,12 @@ class _LoansScreenState extends State<LoansScreen>
         // Reload local data even if fetch fails
         context.read<TransactionProvider>().loadTransactions();
         context.read<LoanProvider>().loadAll();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.'),
+            content: const Text(
+              'Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.',
+            ),
             backgroundColor: Colors.red,
             action: SnackBarAction(
               label: 'Дахин оролдох',
@@ -107,7 +109,8 @@ class _LoansScreenState extends State<LoansScreen>
           return Column(
             children: [
               _buildEnhancedHeader(loanProvider, settingsProvider),
-              if (loanProvider.loans.isNotEmpty) _buildTotalProgressChart(loanProvider, settingsProvider),
+              if (loanProvider.loans.isNotEmpty)
+                _buildTotalProgressChart(loanProvider, settingsProvider),
               _buildSummaryCards(loanProvider, settingsProvider),
               Expanded(
                 child: TabBarView(
@@ -203,12 +206,14 @@ class _LoansScreenState extends State<LoansScreen>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          l10n.totalBalance,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.red.shade600,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            l10n.totalBalance,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.red.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -222,7 +227,9 @@ class _LoansScreenState extends State<LoansScreen>
                         color: Colors.red,
                       ),
                       child: Text(
-                        settingsProvider.formatAmount(provider.totalLoanBalance),
+                        settingsProvider.formatAmount(
+                          provider.totalLoanBalance,
+                        ),
                       ),
                     ),
                   ],
@@ -266,12 +273,14 @@ class _LoansScreenState extends State<LoansScreen>
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          l10n.activeLoans,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.orange.shade600,
-                            fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            l10n.activeLoans,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
@@ -284,9 +293,7 @@ class _LoansScreenState extends State<LoansScreen>
                         fontWeight: FontWeight.bold,
                         color: Colors.orange,
                       ),
-                      child: Text(
-                        '${provider.activeLoansCount}',
-                      ),
+                      child: Text('${provider.activeLoansCount}'),
                     ),
                   ],
                 ),
@@ -337,7 +344,11 @@ class _LoansScreenState extends State<LoansScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.account_balance, size: 64, color: Colors.grey),
+                  const Icon(
+                    Icons.account_balance,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     l10n.noLoansFound,
@@ -346,9 +357,9 @@ class _LoansScreenState extends State<LoansScreen>
                   const SizedBox(height: 16),
                   Text(
                     'Татаж авахын тулд доош татна уу',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                 ],
               ),
@@ -422,7 +433,10 @@ class _LoansScreenState extends State<LoansScreen>
     }
   }
 
-  Widget _buildEnhancedHeader(LoanProvider provider, SettingsProvider settingsProvider) {
+  Widget _buildEnhancedHeader(
+    LoanProvider provider,
+    SettingsProvider settingsProvider,
+  ) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -501,7 +515,10 @@ class _LoansScreenState extends State<LoansScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
@@ -558,7 +575,9 @@ class _LoansScreenState extends State<LoansScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        settingsProvider.formatAmount(provider.getMonthlyPaymentTotal()),
+                        settingsProvider.formatAmount(
+                          provider.getMonthlyPaymentTotal(),
+                        ),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -616,16 +635,19 @@ class _LoansScreenState extends State<LoansScreen>
     );
   }
 
-  Widget _buildTotalProgressChart(LoanProvider provider, SettingsProvider settingsProvider) {
+  Widget _buildTotalProgressChart(
+    LoanProvider provider,
+    SettingsProvider settingsProvider,
+  ) {
     // Show chart for the loan with highest balance or first active loan
-    final activeLoan = provider.activeLoansSortedByBalance.isNotEmpty 
-        ? provider.activeLoansSortedByBalance.first 
+    final activeLoan = provider.activeLoansSortedByBalance.isNotEmpty
+        ? provider.activeLoansSortedByBalance.first
         : (provider.loans.isNotEmpty ? provider.loans.first : null);
-    
+
     if (activeLoan == null) return const SizedBox.shrink();
-    
+
     final payments = provider.getPaymentsForLoan(activeLoan.id);
-    
+
     return LoanProgressChart(
       loan: activeLoan,
       payments: payments,

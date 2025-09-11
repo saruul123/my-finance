@@ -71,11 +71,14 @@ class LoanProvider extends ChangeNotifier {
 
   int get totalLoansCount => _loans.length;
 
-  int get activeLoansCount => _loans.where((loan) => loan.remainingBalance > 0).length;
+  int get activeLoansCount =>
+      _loans.where((loan) => loan.remainingBalance > 0).length;
 
-  int get completedLoansCount => _loans.where((loan) => loan.remainingBalance <= 0).length;
+  int get completedLoansCount =>
+      _loans.where((loan) => loan.remainingBalance <= 0).length;
 
-  double get totalPrincipal => _loans.fold(0.0, (sum, loan) => sum + loan.principal);
+  double get totalPrincipal =>
+      _loans.fold(0.0, (sum, loan) => sum + loan.principal);
 
   double get totalPaid {
     double total = 0.0;
@@ -87,7 +90,8 @@ class LoanProvider extends ChangeNotifier {
 
   double get averageInterestRate {
     if (_loans.isEmpty) return 0.0;
-    return _loans.fold(0.0, (sum, loan) => sum + loan.interestRate) / _loans.length;
+    return _loans.fold(0.0, (sum, loan) => sum + loan.interestRate) /
+        _loans.length;
   }
 
   Map<String, double> get loansByRemaining {
@@ -116,9 +120,7 @@ class LoanProvider extends ChangeNotifier {
   }
 
   List<Loan> get activeLoansSortedByBalance {
-    return _loans
-        .where((loan) => loan.remainingBalance > 0)
-        .toList()
+    return _loans.where((loan) => loan.remainingBalance > 0).toList()
       ..sort((a, b) => b.remainingBalance.compareTo(a.remainingBalance));
   }
 
@@ -145,20 +147,23 @@ class LoanProvider extends ChangeNotifier {
   }
 
   DateTime? getNextDueDate() {
-    final activeLoans = _loans.where((loan) => 
-        loan.remainingBalance > 0 && loan.endDate != null).toList();
-    
+    final activeLoans = _loans
+        .where((loan) => loan.remainingBalance > 0 && loan.endDate != null)
+        .toList();
+
     if (activeLoans.isEmpty) return null;
-    
+
     activeLoans.sort((a, b) => a.endDate!.compareTo(b.endDate!));
     return activeLoans.first.endDate;
   }
 
   bool hasUpcomingPayments([int daysAhead = 7]) {
     final upcoming = DateTime.now().add(Duration(days: daysAhead));
-    return _loans.any((loan) => 
-        loan.endDate != null && 
-        loan.endDate!.isBefore(upcoming) && 
-        loan.remainingBalance > 0);
+    return _loans.any(
+      (loan) =>
+          loan.endDate != null &&
+          loan.endDate!.isBefore(upcoming) &&
+          loan.remainingBalance > 0,
+    );
   }
 }

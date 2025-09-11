@@ -28,7 +28,9 @@ class TransactionListItem extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
           onTap: onTap,
-          onLongPress: onDelete != null ? () => _showDeleteDialog(context) : null,
+          onLongPress: onDelete != null
+              ? () => _showDeleteDialog(context)
+              : null,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -72,7 +74,9 @@ class TransactionListItem extends StatelessWidget {
                           Text(
                             DateFormat('HH:mm').format(transaction.date),
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.5,
+                              ),
                             ),
                           ),
                         ],
@@ -91,17 +95,22 @@ class TransactionListItem extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          if (transaction.createdAt != transaction.updatedAt) ...[
+                          if (transaction.createdAt !=
+                              transaction.updatedAt) ...[
                             Icon(
                               Icons.edit,
                               size: 12,
-                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.5,
+                              ),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               AppLocalizations.of(context)?.edited ?? 'Edited',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                color: theme.colorScheme.onSurface.withOpacity(
+                                  0.5,
+                                ),
                                 fontSize: 11,
                               ),
                             ),
@@ -120,7 +129,10 @@ class TransactionListItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: amountColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -164,27 +176,42 @@ class TransactionListItem extends StatelessWidget {
   IconData _getCategoryIcon(String category, bool isIncome) {
     // Map common categories to appropriate icons
     final categoryLower = category.toLowerCase();
-    
+
     if (isIncome) {
-      if (categoryLower.contains('salary') || categoryLower.contains('цалин')) return Icons.work;
-      if (categoryLower.contains('business') || categoryLower.contains('бизнес')) return Icons.business;
-      if (categoryLower.contains('investment') || categoryLower.contains('хөрөнгө')) return Icons.trending_up;
-      if (categoryLower.contains('gift') || categoryLower.contains('бэлэг')) return Icons.card_giftcard;
+      if (categoryLower.contains('salary') || categoryLower.contains('цалин'))
+        return Icons.work;
+      if (categoryLower.contains('business') ||
+          categoryLower.contains('бизнес'))
+        return Icons.business;
+      if (categoryLower.contains('investment') ||
+          categoryLower.contains('хөрөнгө'))
+        return Icons.trending_up;
+      if (categoryLower.contains('gift') || categoryLower.contains('бэлэг'))
+        return Icons.card_giftcard;
       return Icons.account_balance_wallet;
     } else {
-      if (categoryLower.contains('food') || categoryLower.contains('хоол')) return Icons.restaurant;
-      if (categoryLower.contains('transport') || categoryLower.contains('тээвэр')) return Icons.directions_car;
-      if (categoryLower.contains('shopping') || categoryLower.contains('дэлгүүр')) return Icons.shopping_bag;
-      if (categoryLower.contains('bill') || categoryLower.contains('төлбөр')) return Icons.receipt;
-      if (categoryLower.contains('health') || categoryLower.contains('эрүүл')) return Icons.local_hospital;
-      if (categoryLower.contains('entertainment') || categoryLower.contains('зугаа')) return Icons.movie;
+      if (categoryLower.contains('food') || categoryLower.contains('хоол'))
+        return Icons.restaurant;
+      if (categoryLower.contains('transport') ||
+          categoryLower.contains('тээвэр'))
+        return Icons.directions_car;
+      if (categoryLower.contains('shopping') ||
+          categoryLower.contains('дэлгүүр'))
+        return Icons.shopping_bag;
+      if (categoryLower.contains('bill') || categoryLower.contains('төлбөр'))
+        return Icons.receipt;
+      if (categoryLower.contains('health') || categoryLower.contains('эрүүл'))
+        return Icons.local_hospital;
+      if (categoryLower.contains('entertainment') ||
+          categoryLower.contains('зугаа'))
+        return Icons.movie;
       return Icons.payments;
     }
   }
 
   void _showOptionsMenu(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -220,7 +247,7 @@ class TransactionListItem extends StatelessWidget {
 
   void _showDeleteDialog(BuildContext context) {
     if (onDelete == null) return;
-    
+
     final l10n = AppLocalizations.of(context);
 
     showDialog(
@@ -228,7 +255,10 @@ class TransactionListItem extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: Text(l10n?.deleteTransaction ?? 'Delete Transaction'),
-          content: Text(l10n?.deleteTransactionConfirmation ?? 'Are you sure you want to delete this transaction?'),
+          content: Text(
+            l10n?.deleteTransactionConfirmation ??
+                'Are you sure you want to delete this transaction?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -268,7 +298,7 @@ class TransactionSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -279,10 +309,7 @@ class TransactionSummaryCard extends StatelessWidget {
               children: [
                 Icon(icon, color: color),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall,
-                ),
+                Text(title, style: theme.textTheme.titleSmall),
               ],
             ),
             const SizedBox(height: 8),

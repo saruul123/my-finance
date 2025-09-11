@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'auto_fetch_service.dart';
 import '../providers/settings_provider.dart';
 
 class AppLifecycleService extends StatefulWidget {
   final Widget child;
-  
-  const AppLifecycleService({
-    super.key,
-    required this.child,
-  });
+
+  const AppLifecycleService({super.key, required this.child});
 
   @override
   State<AppLifecycleService> createState() => _AppLifecycleServiceState();
@@ -25,10 +21,10 @@ class _AppLifecycleServiceState extends State<AppLifecycleService>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Initialize auto-fetch service
     AutoFetchService.instance.init();
-    
+
     // Perform cold start auto-fetch after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isFirstLaunch) {
@@ -69,18 +65,20 @@ class _AppLifecycleServiceState extends State<AppLifecycleService>
   void _onAppResumed() {
     final resumeTime = DateTime.now();
     debugPrint('App resumed at: $resumeTime');
-    
+
     if (_backgroundTime != null) {
       final backgroundDuration = resumeTime.difference(_backgroundTime!);
-      debugPrint('App was in background for: ${backgroundDuration.inMinutes} minutes');
-      
+      debugPrint(
+        'App was in background for: ${backgroundDuration.inMinutes} minutes',
+      );
+
       if (AutoFetchService.instance.shouldAutoFetch()) {
         debugPrint('Performing background resume auto-fetch...');
         _performAutoFetch(isBackgroundResume: true);
       } else {
         debugPrint('Skipping auto-fetch (last sync too recent)');
       }
-      
+
       _backgroundTime = null;
     }
   }
@@ -90,9 +88,12 @@ class _AppLifecycleServiceState extends State<AppLifecycleService>
     _performAutoFetch(isAppLaunch: true);
   }
 
-  void _performAutoFetch({bool isAppLaunch = false, bool isBackgroundResume = false}) async {
+  void _performAutoFetch({
+    bool isAppLaunch = false,
+    bool isBackgroundResume = false,
+  }) async {
     if (!mounted) return;
-    
+
     try {
       // Check if Khan Bank is configured
       final settingsProvider = context.read<SettingsProvider>();

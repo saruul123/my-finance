@@ -4,7 +4,8 @@ import '../models/categorization_rule.dart';
 class CategorizationService {
   static const String rulesBox = 'categorization_rules';
   static CategorizationService? _instance;
-  static CategorizationService get instance => _instance ??= CategorizationService._();
+  static CategorizationService get instance =>
+      _instance ??= CategorizationService._();
   CategorizationService._();
 
   late Box<CategorizationRule> _rules;
@@ -15,7 +16,7 @@ class CategorizationService {
     if (!Hive.isAdapterRegistered(10)) {
       Hive.registerAdapter(CategorizationRuleAdapter());
     }
-    
+
     try {
       instance._rules = await Hive.openBox<CategorizationRule>(rulesBox);
       await instance._initializeDefaultRules();
@@ -71,14 +72,14 @@ class CategorizationService {
 
   String categorizeTransaction(String transactionRemarks) {
     final enabledRules = getEnabledRules();
-    
+
     // Try each rule in order
     for (final rule in enabledRules) {
       if (rule.matches(transactionRemarks)) {
         return rule.category;
       }
     }
-    
+
     // Default category if no matches
     return 'Бусад';
   }

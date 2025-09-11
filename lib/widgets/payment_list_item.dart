@@ -23,10 +23,7 @@ class PaymentListItem extends StatelessWidget {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: Colors.green.withOpacity(0.1),
-          child: const Icon(
-            Icons.payment,
-            color: Colors.green,
-          ),
+          child: const Icon(Icons.payment, color: Colors.green),
         ),
         title: Text(
           '\$${NumberFormat('#,##0.00').format(payment.amount)}',

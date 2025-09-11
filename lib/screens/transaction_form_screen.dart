@@ -270,7 +270,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (confirmed == true && mounted) {
       final transactionProvider = context.read<TransactionProvider>();
       await transactionProvider.deleteTransaction(widget.transaction!.id);
-      
+
       if (mounted) {
         Navigator.of(context).pop();
       }

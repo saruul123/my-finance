@@ -11,10 +11,11 @@ class TransactionProvider extends ChangeNotifier {
   DateTime? _startDate;
   DateTime? _endDate;
 
-  List<Transaction> get transactions => _filteredTransactions.isEmpty && _isFilterActive() 
-      ? _filteredTransactions 
+  List<Transaction> get transactions =>
+      _filteredTransactions.isEmpty && _isFilterActive()
+      ? _filteredTransactions
       : _transactions;
-  
+
   List<Transaction> get filteredTransactions => _filteredTransactions;
   TransactionType? get selectedType => _selectedType;
   String? get selectedCategory => _selectedCategory;
@@ -22,8 +23,10 @@ class TransactionProvider extends ChangeNotifier {
   DateTime? get endDate => _endDate;
 
   bool _isFilterActive() {
-    return _selectedType != null || _selectedCategory != null || 
-           _startDate != null || _endDate != null;
+    return _selectedType != null ||
+        _selectedCategory != null ||
+        _startDate != null ||
+        _endDate != null;
   }
 
   void loadTransactions() {
@@ -80,19 +83,21 @@ class TransactionProvider extends ChangeNotifier {
       if (_selectedType != null && transaction.type != _selectedType) {
         return false;
       }
-      
-      if (_selectedCategory != null && transaction.category != _selectedCategory) {
+
+      if (_selectedCategory != null &&
+          transaction.category != _selectedCategory) {
         return false;
       }
-      
+
       if (_startDate != null && transaction.date.isBefore(_startDate!)) {
         return false;
       }
-      
-      if (_endDate != null && transaction.date.isAfter(_endDate!.add(const Duration(days: 1)))) {
+
+      if (_endDate != null &&
+          transaction.date.isAfter(_endDate!.add(const Duration(days: 1)))) {
         return false;
       }
-      
+
       return true;
     }).toList();
   }
@@ -120,7 +125,7 @@ class TransactionProvider extends ChangeNotifier {
     final Map<String, double> categoryExpenses = {};
     for (final transaction in _transactions) {
       if (transaction.type == TransactionType.expense) {
-        categoryExpenses[transaction.category] = 
+        categoryExpenses[transaction.category] =
             (categoryExpenses[transaction.category] ?? 0) + transaction.amount;
       }
     }
@@ -131,7 +136,7 @@ class TransactionProvider extends ChangeNotifier {
     final Map<String, double> categoryIncome = {};
     for (final transaction in _transactions) {
       if (transaction.type == TransactionType.income) {
-        categoryIncome[transaction.category] = 
+        categoryIncome[transaction.category] =
             (categoryIncome[transaction.category] ?? 0) + transaction.amount;
       }
     }
@@ -145,11 +150,16 @@ class TransactionProvider extends ChangeNotifier {
   List<Transaction> getTransactionsForDay(DateTime day) {
     final startOfDay = DateTime(day.year, day.month, day.day);
     final endOfDay = DateTime(day.year, day.month, day.day, 23, 59, 59);
-    
-    return _transactions.where((transaction) =>
-        transaction.date.isAfter(startOfDay) && 
-        transaction.date.isBefore(endOfDay.add(const Duration(seconds: 1)))
-    ).toList();
+
+    return _transactions
+        .where(
+          (transaction) =>
+              transaction.date.isAfter(startOfDay) &&
+              transaction.date.isBefore(
+                endOfDay.add(const Duration(seconds: 1)),
+              ),
+        )
+        .toList();
   }
 
   List<Transaction> getRecentTransactions([int limit = 10]) {

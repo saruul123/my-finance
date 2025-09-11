@@ -42,29 +42,33 @@ class DatabaseService {
       instance._settings = await Hive.openBox<Settings>(settingsBox);
 
       await instance._initializeSettings();
-      
+
       // Initialize categorization service
       await CategorizationService.init();
     } catch (e) {
       print('Error opening Hive boxes, attempting recovery: $e');
-      
+
       // Try to recover by deleting corrupted settings box and recreating
       try {
         await Hive.deleteBoxFromDisk(settingsBox);
         instance._settings = await Hive.openBox<Settings>(settingsBox);
         await instance._initializeSettings();
-        
+
         // Try to open other boxes again
-        instance._transactions = await Hive.openBox<Transaction>(transactionsBox);
+        instance._transactions = await Hive.openBox<Transaction>(
+          transactionsBox,
+        );
         instance._loans = await Hive.openBox<Loan>(loansBox);
         instance._payments = await Hive.openBox<Payment>(paymentsBox);
       } catch (e2) {
         print('Recovery failed, clearing all data: $e2');
-        
+
         // Last resort: clear all corrupted data
         await clearAllCorruptedData();
-        
-        instance._transactions = await Hive.openBox<Transaction>(transactionsBox);
+
+        instance._transactions = await Hive.openBox<Transaction>(
+          transactionsBox,
+        );
         instance._loans = await Hive.openBox<Loan>(loansBox);
         instance._payments = await Hive.openBox<Payment>(paymentsBox);
         instance._settings = await Hive.openBox<Settings>(settingsBox);
@@ -79,19 +83,19 @@ class DatabaseService {
     } catch (e) {
       print('Failed to delete transactions box: $e');
     }
-    
+
     try {
       await Hive.deleteBoxFromDisk(loansBox);
     } catch (e) {
       print('Failed to delete loans box: $e');
     }
-    
+
     try {
       await Hive.deleteBoxFromDisk(paymentsBox);
     } catch (e) {
       print('Failed to delete payments box: $e');
     }
-    
+
     try {
       await Hive.deleteBoxFromDisk(settingsBox);
     } catch (e) {
@@ -148,9 +152,13 @@ class DatabaseService {
 
   List<Transaction> getTransactionsByDateRange(DateTime start, DateTime end) {
     return _transactions.values
-        .where((transaction) =>
-            transaction.date.isAfter(start.subtract(const Duration(days: 1))) &&
-            transaction.date.isBefore(end.add(const Duration(days: 1))))
+        .where(
+          (transaction) =>
+              transaction.date.isAfter(
+                start.subtract(const Duration(days: 1)),
+              ) &&
+              transaction.date.isBefore(end.add(const Duration(days: 1))),
+        )
         .toList()
       ..sort((a, b) => b.date.compareTo(a.date));
   }
@@ -184,10 +192,13 @@ class DatabaseService {
   double getBalanceForMonth(DateTime month) {
     final startOfMonth = DateTime(month.year, month.month, 1);
     final endOfMonth = DateTime(month.year, month.month + 1, 0);
-    
+
     double balance = 0;
-    final monthlyTransactions = getTransactionsByDateRange(startOfMonth, endOfMonth);
-    
+    final monthlyTransactions = getTransactionsByDateRange(
+      startOfMonth,
+      endOfMonth,
+    );
+
     for (final transaction in monthlyTransactions) {
       if (transaction.type == TransactionType.income) {
         balance += transaction.amount;
@@ -212,17 +223,16 @@ class DatabaseService {
         .where((payment) => payment.loanId == id)
         .map((payment) => payment.key)
         .toList();
-    
+
     for (final key in paymentsToDelete) {
       await _payments.delete(key);
     }
-    
+
     await _loans.delete(id);
   }
 
   List<Loan> getAllLoans() {
-    return _loans.values.toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    return _loans.values.toList()..sort((a, b) => a.name.compareTo(b.name));
   }
 
   Loan? getLoan(String id) {
@@ -231,7 +241,7 @@ class DatabaseService {
 
   Future<void> addPayment(Payment payment) async {
     await _payments.put(payment.id, payment);
-    
+
     final loan = _loans.get(payment.loanId);
     if (loan != null) {
       loan.makePayment(payment.amount);
@@ -249,7 +259,7 @@ class DatabaseService {
         await _loans.put(loan.id, loan);
       }
     }
-    
+
     await _payments.put(payment.id, payment);
   }
 
@@ -263,7 +273,7 @@ class DatabaseService {
         await _loans.put(loan.id, loan);
       }
     }
-    
+
     await _payments.delete(id);
   }
 
@@ -275,8 +285,7 @@ class DatabaseService {
   }
 
   List<Payment> getAllPayments() {
-    return _payments.values.toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    return _payments.values.toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 
   List<Loan> getOverdueLoans() {
