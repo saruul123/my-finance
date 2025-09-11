@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/number_formatter.dart';
 
 class TransactionFormScreen extends StatefulWidget {
   final Transaction? transaction;
@@ -32,7 +33,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (isEditing) {
       final transaction = widget.transaction!;
       _selectedType = transaction.type;
-      _amountController.text = transaction.amount.toString();
+      _amountController.text = NumberFormatter.formatWithDots(transaction.amount);
       _noteController.text = transaction.note;
       _categoryController.text = transaction.category;
       _selectedDate = transaction.date;
@@ -112,14 +113,16 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [ThousandsSeparatorInputFormatter()],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return l10n.pleaseEnterAmount;
                   }
-                  if (double.tryParse(value) == null) {
+                  String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                  if (double.tryParse(cleanValue) == null) {
                     return l10n.pleaseEnterValidNumber;
                   }
-                  if (double.parse(value) <= 0) {
+                  if (double.parse(cleanValue) <= 0) {
                     return l10n.amountMustBeGreaterThanZero;
                   }
                   return null;
@@ -211,7 +214,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   Future<void> _saveTransaction() async {
     if (_formKey.currentState!.validate()) {
       final transactionProvider = context.read<TransactionProvider>();
-      final amount = double.parse(_amountController.text);
+      final amount = double.parse(_amountController.text.replaceAll('.', '').replaceAll(',', '.'));
 
       if (isEditing) {
         final updatedTransaction = widget.transaction!;

@@ -5,6 +5,7 @@ import '../models/loan.dart';
 import '../providers/loan_provider.dart';
 import '../providers/settings_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/number_formatter.dart';
 
 class PaymentFormScreen extends StatefulWidget {
   final String loanId;
@@ -37,11 +38,11 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
     
     if (isEditing) {
       final payment = widget.payment!;
-      _amountController.text = payment.amount.toString();
+      _amountController.text = NumberFormatter.formatWithDots(payment.amount);
       _noteController.text = payment.note;
       _selectedDate = payment.date;
     } else if (_loan != null) {
-      _amountController.text = _loan!.monthlyPayment.toString();
+      _amountController.text = NumberFormatter.formatWithDots(_loan!.monthlyPayment);
     }
   }
 
@@ -108,17 +109,19 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                         helperText: l10n.enterPaymentAmount,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [ThousandsSeparatorInputFormatter()],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return l10n.pleaseEnterPaymentAmount;
                         }
-                        if (double.tryParse(value) == null) {
+                        String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                        if (double.tryParse(cleanValue) == null) {
                           return l10n.pleaseEnterValidNumber;
                         }
-                        if (double.parse(value) <= 0) {
+                        if (double.parse(cleanValue) <= 0) {
                           return l10n.paymentMustBeGreaterThanZero;
                         }
-                        if (!isEditing && double.parse(value) > _loan!.remainingBalance) {
+                        if (!isEditing && double.parse(cleanValue) > _loan!.remainingBalance) {
                           return l10n.paymentCannotExceedBalance;
                         }
                         return null;
@@ -196,20 +199,20 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
   void _setMonthlyPayment() {
     if (_loan != null) {
-      _amountController.text = _loan!.monthlyPayment.toString();
+      _amountController.text = NumberFormatter.formatWithDots(_loan!.monthlyPayment);
     }
   }
 
   void _setRemainingBalance() {
     if (_loan != null) {
-      _amountController.text = _loan!.remainingBalance.toString();
+      _amountController.text = NumberFormatter.formatWithDots(_loan!.remainingBalance);
     }
   }
 
   Future<void> _savePayment() async {
     if (_formKey.currentState!.validate()) {
       final loanProvider = context.read<LoanProvider>();
-      final amount = double.parse(_amountController.text);
+      final amount = double.parse(_amountController.text.replaceAll('.', '').replaceAll(',', '.'));
 
       if (isEditing) {
         final updatedPayment = widget.payment!;

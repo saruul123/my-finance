@@ -34,7 +34,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   Widget _buildCustomBottomNavBar(AppLocalizations l10n) {
     return Container(
-      height: 65,
+      height: 80,
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -87,35 +87,46 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final isSelected = _currentIndex == index;
     
     return Expanded(
-      child: GestureDetector(
+      child: InkWell(
         onTap: () {
           setState(() {
             _currentIndex = index;
           });
         },
+        borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected 
+              ? const Color(0xFF2563EB).withOpacity(0.08)
+              : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                isSelected ? selectedIcon : icon,
-                size: 24,
-                color: isSelected 
-                  ? const Color(0xFF2563EB) // Professional blue
-                  : Colors.grey.shade600,
+              AnimatedScale(
+                scale: isSelected ? 1.1 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  isSelected ? selectedIcon : icon,
+                  size: 32,
+                  color: isSelected 
+                    ? const Color(0xFF2563EB) // Professional blue
+                    : Colors.grey.shade600,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                width: isSelected ? 20 : 0,
-                height: 2,
+                width: isSelected ? 24 : 0,
+                height: 3,
                 decoration: BoxDecoration(
                   color: const Color(0xFF2563EB),
-                  borderRadius: BorderRadius.circular(1),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ],

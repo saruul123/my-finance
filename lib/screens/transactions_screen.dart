@@ -242,35 +242,41 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryItem(
-                  l10n.income,
-                  totalIncome,
-                  Icons.trending_up,
-                  Colors.green,
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: _buildSummaryItem(
+                    l10n.income,
+                    totalIncome,
+                    Icons.trending_up,
+                    Colors.green,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildSummaryItem(
-                  l10n.expenses,
-                  totalExpense,
-                  Icons.trending_down,
-                  Colors.red,
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: 120,
+                  child: _buildSummaryItem(
+                    l10n.expenses,
+                    totalExpense,
+                    Icons.trending_down,
+                    Colors.red,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildSummaryItem(
-                  'Net',
-                  totalNet,
-                  totalNet >= 0 ? Icons.account_balance_wallet : Icons.warning,
-                  totalNet >= 0 ? Colors.green : Colors.red,
+                const SizedBox(width: 16),
+                SizedBox(
+                  width: 120,
+                  child: _buildSummaryItem(
+                    'Net',
+                    totalNet,
+                    totalNet >= 0 ? Icons.account_balance_wallet : Icons.warning,
+                    totalNet >= 0 ? Colors.green : Colors.red,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -294,6 +300,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               context,
             ).colorScheme.onPrimaryContainer.withOpacity(0.8),
           ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 2),
         Text(
@@ -302,6 +311,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             fontWeight: FontWeight.bold,
             color: color,
           ),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );
@@ -414,42 +426,44 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                 ],
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  if (dayIncome > 0) ...[
-                    Icon(Icons.trending_up, color: Colors.green, size: 16),
-                    const SizedBox(width: 4),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    if (dayIncome > 0) ...[
+                      Icon(Icons.trending_up, color: Colors.green, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        '₮${NumberFormat('#,##0.00').format(dayIncome)}',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                    if (dayExpense > 0) ...[
+                      Icon(Icons.trending_down, color: Colors.red, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        '₮${NumberFormat('#,##0.00').format(dayExpense)}',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                    Text('Net: ', style: Theme.of(context).textTheme.bodySmall),
                     Text(
-                      '₮${NumberFormat('#,##0.00').format(dayIncome)}',
+                      '₮${NumberFormat('#,##0.00').format(dayNet)}',
                       style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w500,
+                        color: dayNet >= 0 ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 16),
                   ],
-                  if (dayExpense > 0) ...[
-                    Icon(Icons.trending_down, color: Colors.red, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      '₮${NumberFormat('#,##0.00').format(dayExpense)}',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                  const Spacer(),
-                  Text('Net: ', style: Theme.of(context).textTheme.bodySmall),
-                  Text(
-                    '₮${NumberFormat('#,##0.00').format(dayNet)}',
-                    style: TextStyle(
-                      color: dayNet >= 0 ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
@@ -491,8 +505,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ),
       body: Column(
         children: [
-          _buildEnhancedTransactionHeader(),
           _buildLastUpdatedHeader(),
+          _buildEnhancedTransactionHeader(),
           if (_showFilters) _buildFiltersSection(),
           Expanded(
             child: RefreshIndicator(
@@ -620,64 +634,63 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Row(
+              Column(
                 children: [
-                  Expanded(
-                    child: DropdownButtonFormField<TransactionType?>(
-                      initialValue: provider.selectedType,
-                      decoration: InputDecoration(
-                        labelText: l10n.type,
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
+                  DropdownButtonFormField<TransactionType?>(
+                    initialValue: provider.selectedType,
+                    decoration: InputDecoration(
+                      labelText: l10n.type,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                      items: [
-                        DropdownMenuItem<TransactionType?>(
-                          value: null,
-                          child: Text(l10n.allTypes),
-                        ),
-                        ...TransactionType.values.map((type) {
-                          return DropdownMenuItem<TransactionType?>(
-                            value: type,
-                            child: Text(
-                              type == TransactionType.income
-                                  ? l10n.income
-                                  : l10n.expense,
-                            ),
-                          );
-                        }),
-                      ],
-                      onChanged: provider.filterByType,
                     ),
+                    items: [
+                      DropdownMenuItem<TransactionType?>(
+                        value: null,
+                        child: Text(l10n.allTypes),
+                      ),
+                      ...TransactionType.values.map((type) {
+                        return DropdownMenuItem<TransactionType?>(
+                          value: type,
+                          child: Text(
+                            type == TransactionType.income
+                                ? l10n.income
+                                : l10n.expense,
+                          ),
+                        );
+                      }),
+                    ],
+                    onChanged: provider.filterByType,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<String?>(
-                      initialValue: provider.selectedCategory,
-                      decoration: InputDecoration(
-                        labelText: l10n.category,
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String?>(
+                    initialValue: provider.selectedCategory,
+                    decoration: InputDecoration(
+                      labelText: l10n.category,
+                      border: const OutlineInputBorder(),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
                       ),
-                      items: [
-                        DropdownMenuItem<String?>(
-                          value: null,
-                          child: Text(l10n.allCategories),
-                        ),
-                        ...provider.allCategories.map((category) {
-                          return DropdownMenuItem<String?>(
-                            value: category,
-                            child: Text(category),
-                          );
-                        }),
-                      ],
-                      onChanged: provider.filterByCategory,
                     ),
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(l10n.allCategories),
+                      ),
+                      ...provider.allCategories.map((category) {
+                        return DropdownMenuItem<String?>(
+                          value: category,
+                          child: Text(
+                            category,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }),
+                    ],
+                    onChanged: provider.filterByCategory,
                   ),
                 ],
               ),

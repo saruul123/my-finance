@@ -147,6 +147,8 @@ class TransactionListItem extends StatelessWidget {
                           color: amountColor,
                           fontWeight: FontWeight.bold,
                         ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                     if (onDelete != null) ...[

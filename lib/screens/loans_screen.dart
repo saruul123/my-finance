@@ -38,50 +38,15 @@ class _LoansScreenState extends State<LoansScreen>
   }
 
   Future<void> _onRefresh() async {
-    final autoFetchService = context.read<AutoFetchService>();
-
     try {
-      // Fetch Khan Bank transactions first
-      await autoFetchService.fetchTransactions(context, showLoading: false);
-
-      if (mounted) {
-        // Reload local data after fetch
-        context.read<TransactionProvider>().loadTransactions();
-        context.read<LoanProvider>().loadAll();
-
-        // Show error message if fetch failed
-        if (autoFetchService.lastError != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Шинэчлэхэд алдаа: ${autoFetchService.lastError}'),
-              backgroundColor: Colors.orange,
-              action: SnackBarAction(
-                label: 'Дахин оролдох',
-                textColor: Colors.white,
-                onPressed: () => _onRefresh(),
-              ),
-            ),
-          );
-          autoFetchService.clearError();
-        }
-      }
+      // Only reload local data, no Khan Bank API calls
+      context.read<LoanProvider>().loadAll();
     } catch (e) {
       if (mounted) {
-        // Reload local data even if fetch fails
-        context.read<TransactionProvider>().loadTransactions();
-        context.read<LoanProvider>().loadAll();
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.',
-            ),
+            content: Text('Мэдээлэл шинэчлэхэд алдаа: $e'),
             backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Дахин оролдох',
-              textColor: Colors.white,
-              onPressed: () => _onRefresh(),
-            ),
           ),
         );
       }
@@ -108,47 +73,59 @@ class _LoansScreenState extends State<LoansScreen>
         builder: (context, loanProvider, settingsProvider, child) {
           return Column(
             children: [
-              _buildEnhancedHeader(loanProvider, settingsProvider),
-              if (loanProvider.loans.isNotEmpty)
-                _buildTotalProgressChart(loanProvider, settingsProvider),
-              _buildSummaryCards(loanProvider, settingsProvider),
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      backgroundColor: Colors.white,
-                      color: Colors.blue,
-                      strokeWidth: 3,
-                      displacement: 50,
-                      child: _buildLoansList(
-                        loanProvider.loans
-                            .where((loan) => loan.remainingBalance > 0)
-                            .toList(),
+                child: NestedScrollView(
+                  headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+                    return <Widget>[
+                      SliverToBoxAdapter(
+                        child: Column(
+                          children: [
+                            _buildEnhancedHeader(loanProvider, settingsProvider),
+                            if (loanProvider.loans.isNotEmpty)
+                              _buildTotalProgressChart(loanProvider, settingsProvider),
+                            _buildSummaryCards(loanProvider, settingsProvider),
+                          ],
+                        ),
                       ),
-                    ),
-                    RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      backgroundColor: Colors.white,
-                      color: Colors.blue,
-                      strokeWidth: 3,
-                      displacement: 50,
-                      child: _buildLoansList(loanProvider.loans),
-                    ),
-                    RefreshIndicator(
-                      onRefresh: _onRefresh,
-                      backgroundColor: Colors.white,
-                      color: Colors.blue,
-                      strokeWidth: 3,
-                      displacement: 50,
-                      child: _buildLoansList(
-                        loanProvider.loans
-                            .where((loan) => loan.remainingBalance <= 0)
-                            .toList(),
+                    ];
+                  },
+                  body: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        backgroundColor: Colors.white,
+                        color: Colors.blue,
+                        strokeWidth: 3,
+                        displacement: 50,
+                        child: _buildLoansList(
+                          loanProvider.loans
+                              .where((loan) => loan.remainingBalance > 0)
+                              .toList(),
+                        ),
                       ),
-                    ),
-                  ],
+                      RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        backgroundColor: Colors.white,
+                        color: Colors.blue,
+                        strokeWidth: 3,
+                        displacement: 50,
+                        child: _buildLoansList(loanProvider.loans),
+                      ),
+                      RefreshIndicator(
+                        onRefresh: _onRefresh,
+                        backgroundColor: Colors.white,
+                        color: Colors.blue,
+                        strokeWidth: 3,
+                        displacement: 50,
+                        child: _buildLoansList(
+                          loanProvider.loans
+                              .where((loan) => loan.remainingBalance <= 0)
+                              .toList(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

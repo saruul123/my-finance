@@ -5,6 +5,7 @@ import '../models/loan.dart';
 import '../providers/loan_provider.dart';
 import '../providers/settings_provider.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/number_formatter.dart';
 
 class LoanFormScreen extends StatefulWidget {
   final Loan? loan;
@@ -35,10 +36,10 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     if (isEditing) {
       final loan = widget.loan!;
       _nameController.text = loan.name;
-      _principalController.text = loan.principal.toString();
-      _monthlyPaymentController.text = loan.monthlyPayment.toString();
+      _principalController.text = NumberFormatter.formatWithDots(loan.principal);
+      _monthlyPaymentController.text = NumberFormatter.formatWithDots(loan.monthlyPayment);
       _interestRateController.text = loan.interestRate.toString();
-      _remainingBalanceController.text = loan.remainingBalance.toString();
+      _remainingBalanceController.text = NumberFormatter.formatWithDots(loan.remainingBalance);
       _startDate = loan.startDate;
       _endDate = loan.endDate;
       _hasEndDate = loan.endDate != null;
@@ -116,14 +117,16 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
+                        inputFormatters: [ThousandsSeparatorInputFormatter()],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return l10n.pleaseEnterAmount;
                           }
-                          if (double.tryParse(value) == null) {
+                          String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                          if (double.tryParse(cleanValue) == null) {
                             return l10n.pleaseEnterValidNumber;
                           }
-                          if (double.parse(value) <= 0) {
+                          if (double.parse(cleanValue) <= 0) {
                             return l10n.principalMustBePositive;
                           }
                           return null;
@@ -141,14 +144,16 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
+                        inputFormatters: [ThousandsSeparatorInputFormatter()],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return l10n.monthlyPaymentRequired;
                           }
-                          if (double.tryParse(value) == null) {
+                          String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                          if (double.tryParse(cleanValue) == null) {
                             return l10n.pleaseEnterValidNumber;
                           }
-                          if (double.parse(value) <= 0) {
+                          if (double.parse(cleanValue) <= 0) {
                             return l10n.amountMustBeGreaterThanZero;
                           }
                           return null;
@@ -191,15 +196,17 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
+                        inputFormatters: [ThousandsSeparatorInputFormatter()],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             // Set to principal amount if empty
                             return null;
                           }
-                          if (double.tryParse(value) == null) {
+                          String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                          if (double.tryParse(cleanValue) == null) {
                             return l10n.pleaseEnterValidNumber;
                           }
-                          if (double.parse(value) < 0) {
+                          if (double.parse(cleanValue) < 0) {
                             return l10n.amountMustBeGreaterThanZero;
                           }
                           return null;
@@ -346,14 +353,14 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       final loanProvider = context.read<LoanProvider>();
 
       final name = _nameController.text.trim();
-      final principal = double.parse(_principalController.text);
-      final monthlyPayment = double.parse(_monthlyPaymentController.text);
+      final principal = double.parse(_principalController.text.replaceAll('.', '').replaceAll(',', '.'));
+      final monthlyPayment = double.parse(_monthlyPaymentController.text.replaceAll('.', '').replaceAll(',', '.'));
       final interestRate = double.parse(_interestRateController.text);
       
       // Use remaining balance if provided, otherwise use principal amount
       final remainingBalance = _remainingBalanceController.text.trim().isEmpty 
         ? principal 
-        : double.parse(_remainingBalanceController.text);
+        : double.parse(_remainingBalanceController.text.replaceAll('.', '').replaceAll(',', '.'));
 
       if (isEditing) {
         final updatedLoan = widget.loan!;
