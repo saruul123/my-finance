@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
-import '../models/loan.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/loan_provider.dart';
 import '../services/tag_service.dart';
