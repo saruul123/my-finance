@@ -50,18 +50,68 @@ class TransactionProvider extends ChangeNotifier {
   void _autoAssignTags() {
     bool hasChanges = false;
     for (final transaction in _transactions) {
-      if (transaction.tags.isEmpty && transaction.note.isNotEmpty) {
-        final extractedTags = _tagService.extractTagsFromTransaction(transaction.note);
-        if (extractedTags.isNotEmpty) {
-          transaction.tags = extractedTags;
-          _databaseService.updateTransaction(transaction);
-          hasChanges = true;
+      // Skip if transaction already has tags or has no note
+      if (transaction.tags.isNotEmpty || transaction.note.isEmpty) continue;
+      
+      List<String> extractedTags = [];
+      
+      // Use enhanced loan tagging for loan transactions
+      if (transaction.isLoanPayment && transaction.loanId != null) {
+        final loan = _databaseService.getLoan(transaction.loanId!);
+        if (loan != null) {
+          // Calculate breakdown if possible
+          final breakdown = loan.calculatePaymentBreakdown(transaction.amount);
+          
+          extractedTags = _tagService.extractLoanTags(
+            transactionRemarks: '${transaction.note} ${transaction.category}',
+            amount: transaction.amount,
+            loanName: loan.name,
+            interestRate: loan.interestRate,
+            principalAmount: breakdown['principal'],
+            interestAmount: breakdown['interest'],
+          );
         }
+      } else {
+        // Use regular tag extraction for non-loan transactions
+        extractedTags = _tagService.extractTagsFromTransaction(transaction.note);
+      }
+      
+      if (extractedTags.isNotEmpty) {
+        transaction.tags = extractedTags;
+        _databaseService.updateTransaction(transaction);
+        hasChanges = true;
       }
     }
     if (hasChanges) {
       _transactions = _databaseService.getAllTransactions();
     }
+  }
+
+  /// Get intelligent tag suggestions for a transaction
+  List<String> getTagSuggestions({
+    required String note,
+    required String category,
+    required double amount,
+    String? loanId,
+  }) {
+    // If it's a loan transaction, use enhanced loan tagging
+    if (loanId != null) {
+      final loan = _databaseService.getLoan(loanId);
+      if (loan != null) {
+        final breakdown = loan.calculatePaymentBreakdown(amount);
+        return _tagService.extractLoanTags(
+          transactionRemarks: '$note $category',
+          amount: amount,
+          loanName: loan.name,
+          interestRate: loan.interestRate,
+          principalAmount: breakdown['principal'],
+          interestAmount: breakdown['interest'],
+        );
+      }
+    }
+    
+    // Regular tag suggestions
+    return _tagService.extractTagsFromTransaction('$note $category');
   }
 
   Future<void> addTransaction(Transaction transaction) async {
@@ -303,6 +353,27 @@ class TransactionProvider extends ChangeNotifier {
       transaction.note = transaction.note.isEmpty 
         ? payment.note 
         : '${transaction.note}. ${payment.note}';
+      transaction.updatedAt = DateTime.now();
+      await _databaseService.updateTransaction(transaction);
+    }
+
+    // Apply enhanced loan tagging
+    final enhancedTags = _tagService.extractLoanTags(
+      transactionRemarks: '${transaction.note} ${transaction.category}',
+      amount: transaction.amount,
+      loanName: loan.name,
+      interestRate: loan.interestRate,
+      principalAmount: principalAmount,
+      interestAmount: interestAmount,
+    );
+
+    // Merge with existing tags (avoid duplicates)
+    final existingTags = Set<String>.from(transaction.tags);
+    final allTags = existingTags..addAll(enhancedTags);
+    
+    // Update transaction with enhanced tags
+    if (allTags.length > existingTags.length) {
+      transaction.tags = allTags.toList()..sort();
       transaction.updatedAt = DateTime.now();
       await _databaseService.updateTransaction(transaction);
     }

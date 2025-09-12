@@ -94,6 +94,210 @@ class TagService {
     return matchedTags.toList()..sort();
   }
 
+  /// Enhanced loan-specific tag extraction with intelligent categorization
+  List<String> extractLoanTags({
+    required String transactionRemarks,
+    required double amount,
+    String? loanName,
+    double? interestRate,
+    double? principalAmount,
+    double? interestAmount,
+  }) {
+    final matchedTags = <String>{};
+    final lowerRemarks = transactionRemarks.toLowerCase();
+    final enabledTags = getEnabledTags();
+
+    // 1. Basic loan keyword matching
+    for (final tag in enabledTags.where(
+      (t) => t.group == TagGroup.loans || t.group == TagGroup.interest,
+    )) {
+      if (tag.matches(transactionRemarks)) {
+        matchedTags.add(tag.name);
+      }
+    }
+
+    // 2. Loan name-based tagging
+    if (loanName != null && loanName.isNotEmpty) {
+      final customLoanTag = _generateLoanNameTag(loanName);
+      matchedTags.add(customLoanTag);
+
+      // Auto-create the tag if it doesn't exist
+      _ensureLoanTagExists(customLoanTag, loanName);
+    }
+
+    // 3. Amount-based categorization
+    if (amount > 0) {
+      final amountTag = _categorizeByLoanAmount(amount);
+      if (amountTag != null) {
+        matchedTags.add(amountTag);
+      }
+    }
+
+    // 4. Interest vs Principal categorization
+    if (interestAmount != null && principalAmount != null) {
+      if (interestAmount > principalAmount) {
+        matchedTags.add('high interest payment');
+        _ensureHighInterestTagExists();
+      }
+
+      final interestPercentage = (interestAmount / amount) * 100;
+      if (interestPercentage > 50) {
+        matchedTags.add('interest heavy');
+        _ensureInterestHeavyTagExists();
+      }
+    }
+
+    // 5. Intelligent bank/institution detection
+    final institutionTag = _detectLoanInstitution(lowerRemarks);
+    if (institutionTag != null) {
+      matchedTags.add(institutionTag);
+    }
+
+    // 6. Payment frequency detection
+    final frequencyTag = _detectPaymentFrequency(lowerRemarks);
+    if (frequencyTag != null) {
+      matchedTags.add(frequencyTag);
+    }
+
+    return matchedTags.toList()..sort();
+  }
+
+  String _generateLoanNameTag(String loanName) {
+    return 'loan: ${loanName.toLowerCase().trim()}';
+  }
+
+  Future<void> _ensureLoanTagExists(String tagName, String loanName) async {
+    final existingTag = _tags.values.firstWhere(
+      (tag) => tag.name.toLowerCase() == tagName.toLowerCase(),
+      orElse: () => Tag(
+        id: '',
+        name: '',
+        group: TagGroup.loans,
+        keywords: [],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    );
+
+    if (existingTag.id.isEmpty) {
+      final newTag = Tag.create(
+        name: tagName,
+        group: TagGroup.loans,
+        keywords: [loanName.toLowerCase(), tagName.toLowerCase()],
+        isEnabled: true,
+      );
+      await addTag(newTag);
+    }
+  }
+
+  String? _categorizeByLoanAmount(double amount) {
+    if (amount >= 1000000) {
+      // 1M MNT or more
+      return 'large loan payment';
+    } else if (amount >= 500000) {
+      // 500K - 1M MNT
+      return 'medium loan payment';
+    } else if (amount >= 100000) {
+      // 100K - 500K MNT
+      return 'regular loan payment';
+    } else if (amount >= 10000) {
+      // 10K - 100K MNT
+      return 'small loan payment';
+    }
+    return null;
+  }
+
+  String? _detectLoanInstitution(String lowerRemarks) {
+    final institutionKeywords = {
+      'khan bank': ['khan', 'хаан банк', 'хаан'],
+      'state bank': ['state', 'төрийн банк', 'төрийн'],
+      'golomt bank': ['golomt', 'голомт банк', 'голомт'],
+      'trade bank': ['trade', 'худалдаа банк', 'худалдаа'],
+      'capitron bank': ['capitron', 'капитрон', 'капитрон банк'],
+      'xacbank': ['xac', 'хас банк', 'хас'],
+      'mbank': ['mbank', 'эм банк', 'эмбанк'],
+      'national investment bank': ['nib', 'хөрөнгө оруулалтын банк'],
+      'credit mongolia': ['credit mongolia', 'кредит монголиа'],
+      'microfinance': ['микрозээл', 'microfinance', 'мфо'],
+    };
+
+    for (final entry in institutionKeywords.entries) {
+      for (final keyword in entry.value) {
+        if (lowerRemarks.contains(keyword.toLowerCase())) {
+          return '${entry.key} loan';
+        }
+      }
+    }
+    return null;
+  }
+
+  String? _detectPaymentFrequency(String lowerRemarks) {
+    if (lowerRemarks.contains('сарын төлбөр') ||
+        lowerRemarks.contains('monthly') ||
+        lowerRemarks.contains('сар бүрийн')) {
+      return 'monthly payment';
+    } else if (lowerRemarks.contains('жилийн төлбөр') ||
+        lowerRemarks.contains('annual') ||
+        lowerRemarks.contains('жил бүрийн')) {
+      return 'annual payment';
+    } else if (lowerRemarks.contains('долоо хоногийн') ||
+        lowerRemarks.contains('weekly') ||
+        lowerRemarks.contains('7 хоног')) {
+      return 'weekly payment';
+    }
+    return null;
+  }
+
+  Future<void> _ensureHighInterestTagExists() async {
+    const tagName = 'high interest payment';
+    final existingTag = _tags.values.firstWhere(
+      (tag) => tag.name.toLowerCase() == tagName.toLowerCase(),
+      orElse: () => Tag(
+        id: '',
+        name: '',
+        group: TagGroup.interest,
+        keywords: [],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    );
+
+    if (existingTag.id.isEmpty) {
+      final newTag = Tag.create(
+        name: tagName,
+        group: TagGroup.interest,
+        keywords: ['high interest', 'өндөр хүү', 'их хүү'],
+        isEnabled: true,
+      );
+      await addTag(newTag);
+    }
+  }
+
+  Future<void> _ensureInterestHeavyTagExists() async {
+    const tagName = 'interest heavy';
+    final existingTag = _tags.values.firstWhere(
+      (tag) => tag.name.toLowerCase() == tagName.toLowerCase(),
+      orElse: () => Tag(
+        id: '',
+        name: '',
+        group: TagGroup.interest,
+        keywords: [],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    );
+
+    if (existingTag.id.isEmpty) {
+      final newTag = Tag.create(
+        name: tagName,
+        group: TagGroup.interest,
+        keywords: ['interest heavy', 'хүү ихтэй', 'хүүгийн хэсэг их'],
+        isEnabled: true,
+      );
+      await addTag(newTag);
+    }
+  }
+
   /// Get tag groups for a list of tag names
   Map<TagGroup, List<String>> groupTagsByCategory(List<String> tagNames) {
     final result = <TagGroup, List<String>>{};

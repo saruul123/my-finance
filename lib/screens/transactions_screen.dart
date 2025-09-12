@@ -323,36 +323,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     );
   }
 
-  Widget _buildGroupedTransactionsList(
-    List<Transaction> transactions,
-    AppLocalizations l10n,
-  ) {
-    // Group transactions by date
-    final Map<String, List<Transaction>> groupedTransactions = {};
-
-    for (final transaction in transactions) {
-      final dateKey = DateFormat('yyyy-MM-dd').format(transaction.date);
-      if (!groupedTransactions.containsKey(dateKey)) {
-        groupedTransactions[dateKey] = [];
-      }
-      groupedTransactions[dateKey]!.add(transaction);
-    }
-
-    // Sort dates in descending order (newest first)
-    final sortedDates = groupedTransactions.keys.toList()
-      ..sort((a, b) => b.compareTo(a));
-
-    return ListView.builder(
-      itemCount: sortedDates.length,
-      itemBuilder: (context, index) {
-        final dateKey = sortedDates[index];
-        final dayTransactions = groupedTransactions[dateKey]!;
-        final date = DateTime.parse(dateKey);
-
-        return _buildDayGroup(date, dayTransactions, l10n);
-      },
-    );
-  }
 
   Widget _buildDayGroup(
     DateTime date,

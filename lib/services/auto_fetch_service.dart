@@ -19,7 +19,6 @@ class AutoFetchService extends ChangeNotifier {
   String? get lastError => _lastError;
 
   static const Duration _backgroundThreshold = Duration(minutes: 5);
-  static const String _lastSyncKey = 'last_sync_time';
 
   void init() {
     _loadLastSyncTime();

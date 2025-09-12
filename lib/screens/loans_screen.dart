@@ -479,7 +479,7 @@ class _LoansScreenState extends State<LoansScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Нийт зээлийн дансан',
+                      l10n.totalBalance,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.9),
                         fontSize: 14,
@@ -513,7 +513,7 @@ class _LoansScreenState extends State<LoansScreen>
                   ),
                 ),
                 child: Text(
-                  '${provider.activeLoansCount} идэвхтэй',
+                  '${provider.activeLoansCount} ${l10n.activeLoans.toLowerCase()}',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -549,7 +549,7 @@ class _LoansScreenState extends State<LoansScreen>
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Сарын төлбөр',
+                            l10n.monthlyPaymentTotal,
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.8),
                               fontSize: 12,
@@ -591,7 +591,7 @@ class _LoansScreenState extends State<LoansScreen>
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Нийт төлөгдсөн',
+                            'Total Paid', // Using English as there's no direct l10n equivalent
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.8),
                               fontSize: 12,
