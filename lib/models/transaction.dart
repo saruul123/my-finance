@@ -19,7 +19,10 @@ class Transaction extends HiveObject {
   late TransactionType type;
 
   @HiveField(2)
-  late String category;
+  late String category; // Keep for backward compatibility
+
+  @HiveField(9)
+  late List<String> tags;
 
   @HiveField(3)
   late double amount;
@@ -39,6 +42,9 @@ class Transaction extends HiveObject {
   @HiveField(8)
   late DateTime updatedAt;
 
+  @HiveField(10)
+  String? loanId;
+
   Transaction({
     required this.id,
     required this.type,
@@ -47,8 +53,10 @@ class Transaction extends HiveObject {
     // currency is always MNT, no parameter needed
     required this.date,
     this.note = '',
+    this.tags = const [],
     required this.createdAt,
     required this.updatedAt,
+    this.loanId,
   });
 
   Transaction.create({
@@ -58,6 +66,8 @@ class Transaction extends HiveObject {
     // currency is always MNT, no parameter needed
     required this.date,
     this.note = '',
+    this.tags = const [],
+    this.loanId,
   }) {
     id = DateTime.now().millisecondsSinceEpoch.toString();
     createdAt = DateTime.now();
@@ -73,8 +83,10 @@ class Transaction extends HiveObject {
       'currency': 'MNT', // Always MNT
       'date': date.toIso8601String(),
       'note': note,
+      'tags': tags,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'loanId': loanId,
     };
   }
 
@@ -89,8 +101,10 @@ class Transaction extends HiveObject {
       // currency is always MNT, ignore json value
       date: DateTime.parse(json['date']),
       note: json['note'] ?? '',
+      tags: List<String>.from(json['tags'] ?? []),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      loanId: json['loanId'],
     );
   }
 
@@ -101,6 +115,8 @@ class Transaction extends HiveObject {
     // currency removed - always MNT
     DateTime? date,
     String? note,
+    List<String>? tags,
+    String? loanId,
   }) {
     if (type != null) this.type = type;
     if (category != null) this.category = category;
@@ -108,6 +124,10 @@ class Transaction extends HiveObject {
     // currency is always MNT, no update needed
     if (date != null) this.date = date;
     if (note != null) this.note = note;
+    if (tags != null) this.tags = tags;
+    if (loanId != null) this.loanId = loanId;
     updatedAt = DateTime.now();
   }
+
+  bool get isLoanPayment => loanId != null;
 }

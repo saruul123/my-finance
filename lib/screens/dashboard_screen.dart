@@ -4,7 +4,6 @@ import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/loan_provider.dart';
 import '../providers/settings_provider.dart';
-import '../services/auto_fetch_service.dart';
 import '../widgets/transaction_list_item.dart';
 import '../l10n/app_localizations.dart';
 import 'transaction_form_screen.dart';
@@ -94,50 +93,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refreshData() async {
-    final autoFetchService = context.read<AutoFetchService>();
-
     try {
-      // Fetch Khan Bank transactions first
-      await autoFetchService.fetchTransactions(context, showLoading: false);
-
       if (mounted) {
-        // Reload local data after fetch
+        // Only reload local data, no Khan Bank fetch
         context.read<TransactionProvider>().loadTransactions();
         context.read<LoanProvider>().loadAll();
-
-        // Show error message if fetch failed
-        if (autoFetchService.lastError != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Шинэчлэхэд алдаа: ${autoFetchService.lastError}'),
-              backgroundColor: Colors.orange,
-              action: SnackBarAction(
-                label: 'Дахин оролдох',
-                textColor: Colors.white,
-                onPressed: () => _refreshData(),
-              ),
-            ),
-          );
-          autoFetchService.clearError();
-        }
       }
     } catch (e) {
       if (mounted) {
-        // Reload local data even if fetch fails
-        context.read<TransactionProvider>().loadTransactions();
-        context.read<LoanProvider>().loadAll();
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
-              'Гүйлгээ шинэчлэхэд алдаа гарлаа. Дахин оролдоно уу.',
+              'Мэдээлэл шинэчлэхэд алдаа гарлаа.',
             ),
             backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Дахин оролдох',
-              textColor: Colors.white,
-              onPressed: () => _refreshData(),
-            ),
           ),
         );
       }
@@ -557,8 +526,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => TransactionFormScreen()))
         .then((_) {
-          // Refresh data when returning from form
-          _refreshData();
+          // Only reload local data when returning from form
+          if (mounted) {
+            context.read<TransactionProvider>().loadTransactions();
+            context.read<LoanProvider>().loadAll();
+          }
         });
   }
 
@@ -571,8 +543,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         )
         .then((_) {
-          // Refresh data when returning from form
-          _refreshData();
+          // Only reload local data when returning from form
+          if (mounted) {
+            context.read<TransactionProvider>().loadTransactions();
+            context.read<LoanProvider>().loadAll();
+          }
         });
   }
 }

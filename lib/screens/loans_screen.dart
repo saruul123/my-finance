@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import '../models/loan.dart';
 import '../providers/loan_provider.dart';
 import '../providers/settings_provider.dart';
-import '../providers/transaction_provider.dart';
-import '../services/auto_fetch_service.dart';
 import '../widgets/loan_list_item.dart';
 import '../widgets/loan_progress_chart.dart';
 import '../l10n/app_localizations.dart';
@@ -75,20 +73,30 @@ class _LoansScreenState extends State<LoansScreen>
             children: [
               Expanded(
                 child: NestedScrollView(
-                  headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-                    return <Widget>[
-                      SliverToBoxAdapter(
-                        child: Column(
-                          children: [
-                            _buildEnhancedHeader(loanProvider, settingsProvider),
-                            if (loanProvider.loans.isNotEmpty)
-                              _buildTotalProgressChart(loanProvider, settingsProvider),
-                            _buildSummaryCards(loanProvider, settingsProvider),
-                          ],
-                        ),
-                      ),
-                    ];
-                  },
+                  headerSliverBuilder:
+                      (BuildContext context, bool innerBoxIsScrolled) {
+                        return <Widget>[
+                          SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                _buildEnhancedHeader(
+                                  loanProvider,
+                                  settingsProvider,
+                                ),
+                                if (loanProvider.loans.isNotEmpty)
+                                  _buildTotalProgressChart(
+                                    loanProvider,
+                                    settingsProvider,
+                                  ),
+                                _buildSummaryCards(
+                                  loanProvider,
+                                  settingsProvider,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ];
+                      },
                   body: TabBarView(
                     controller: _tabController,
                     children: [

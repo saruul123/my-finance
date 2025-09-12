@@ -194,4 +194,24 @@ class Loan extends HiveObject {
     if (principal == 0) return 0;
     return ((principal - remainingBalance) / principal) * 100;
   }
+
+  Map<String, double> calculatePaymentBreakdown(double paymentAmount) {
+    final monthlyInterestRate = interestRate / 100 / 12;
+    final interestPayment = remainingBalance * monthlyInterestRate;
+    final principalPayment = paymentAmount - interestPayment;
+    
+    return {
+      'interest': interestPayment.clamp(0, paymentAmount),
+      'principal': principalPayment.clamp(0, remainingBalance),
+    };
+  }
+
+  void makePaymentWithBreakdown(double amount) {
+    final breakdown = calculatePaymentBreakdown(amount);
+    final principalPayment = breakdown['principal']!;
+    
+    remainingBalance -= principalPayment;
+    if (remainingBalance < 0) remainingBalance = 0;
+    updatedAt = DateTime.now();
+  }
 }

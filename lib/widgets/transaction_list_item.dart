@@ -92,6 +92,63 @@ class TransactionListItem extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
+                      // Tags section
+                      if (transaction.tags.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children:
+                              transaction.tags.take(3).map((tag) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.secondaryContainer,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    tag,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                );
+                              }).toList()..addAll(
+                                transaction.tags.length > 3
+                                    ? [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: theme.colorScheme.outline
+                                                .withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '+${transaction.tags.length - 3}',
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      theme.colorScheme.outline,
+                                                  fontSize: 10,
+                                                ),
+                                          ),
+                                        ),
+                                      ]
+                                    : [],
+                              ),
+                        ),
+                      ],
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -180,33 +237,43 @@ class TransactionListItem extends StatelessWidget {
     final categoryLower = category.toLowerCase();
 
     if (isIncome) {
-      if (categoryLower.contains('salary') || categoryLower.contains('цалин'))
+      if (categoryLower.contains('salary') || categoryLower.contains('цалин')) {
         return Icons.work;
+      }
       if (categoryLower.contains('business') ||
-          categoryLower.contains('бизнес'))
+          categoryLower.contains('бизнес')) {
         return Icons.business;
+      }
       if (categoryLower.contains('investment') ||
-          categoryLower.contains('хөрөнгө'))
+          categoryLower.contains('хөрөнгө')) {
         return Icons.trending_up;
-      if (categoryLower.contains('gift') || categoryLower.contains('бэлэг'))
+      }
+      if (categoryLower.contains('gift') || categoryLower.contains('бэлэг')) {
         return Icons.card_giftcard;
+      }
       return Icons.account_balance_wallet;
     } else {
-      if (categoryLower.contains('food') || categoryLower.contains('хоол'))
+      if (categoryLower.contains('food') || categoryLower.contains('хоол')) {
         return Icons.restaurant;
+      }
       if (categoryLower.contains('transport') ||
-          categoryLower.contains('тээвэр'))
+          categoryLower.contains('тээвэр')) {
         return Icons.directions_car;
+      }
       if (categoryLower.contains('shopping') ||
-          categoryLower.contains('дэлгүүр'))
+          categoryLower.contains('дэлгүүр')) {
         return Icons.shopping_bag;
-      if (categoryLower.contains('bill') || categoryLower.contains('төлбөр'))
+      }
+      if (categoryLower.contains('bill') || categoryLower.contains('төлбөр')) {
         return Icons.receipt;
-      if (categoryLower.contains('health') || categoryLower.contains('эрүүл'))
+      }
+      if (categoryLower.contains('health') || categoryLower.contains('эрүүл')) {
         return Icons.local_hospital;
+      }
       if (categoryLower.contains('entertainment') ||
-          categoryLower.contains('зугаа'))
+          categoryLower.contains('зугаа')) {
         return Icons.movie;
+      }
       return Icons.payments;
     }
   }

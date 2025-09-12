@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'auto_fetch_service.dart';
-import '../providers/settings_provider.dart';
 
 class AppLifecycleService extends StatefulWidget {
   final Widget child;
@@ -72,53 +70,17 @@ class _AppLifecycleServiceState extends State<AppLifecycleService>
         'App was in background for: ${backgroundDuration.inMinutes} minutes',
       );
 
-      if (AutoFetchService.instance.shouldAutoFetch()) {
-        debugPrint('Performing background resume auto-fetch...');
-        _performAutoFetch(isBackgroundResume: true);
-      } else {
-        debugPrint('Skipping auto-fetch (last sync too recent)');
-      }
+      debugPrint('Background resume auto-fetch disabled');
 
       _backgroundTime = null;
     }
   }
 
   void _performColdStartAutoFetch() {
-    debugPrint('Performing cold start auto-fetch...');
-    _performAutoFetch(isAppLaunch: true);
+    debugPrint('Cold start auto-fetch disabled');
+    // Auto-fetch removed - no Khan Bank calls on app launch
   }
 
-  void _performAutoFetch({
-    bool isAppLaunch = false,
-    bool isBackgroundResume = false,
-  }) async {
-    if (!mounted) return;
-
-    try {
-      // Check if Khan Bank is configured
-      final settingsProvider = context.read<SettingsProvider>();
-      if (!settingsProvider.khanBankEnabled ||
-          settingsProvider.khanBankUsername.isEmpty ||
-          settingsProvider.khanBankPassword.isEmpty) {
-        debugPrint('Auto-fetch skipped: Khan Bank not configured');
-        return;
-      }
-
-      // Perform the fetch
-      final success = await AutoFetchService.instance.fetchTransactions(
-        context,
-        showLoading: false, // Silent background fetch
-      );
-
-      if (success) {
-        debugPrint('Auto-fetch successful');
-      } else {
-        debugPrint('Auto-fetch failed: ${AutoFetchService.instance.lastError}');
-      }
-    } catch (e) {
-      debugPrint('Auto-fetch error: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

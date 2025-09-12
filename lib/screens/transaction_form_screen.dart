@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
+import '../models/loan.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/loan_provider.dart';
+import '../services/tag_service.dart';
 import '../l10n/app_localizations.dart';
 import '../utils/number_formatter.dart';
 
@@ -23,6 +26,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
   TransactionType _selectedType = TransactionType.expense;
   DateTime _selectedDate = DateTime.now();
+  List<String> _extractedTags = [];
+  final TagService _tagService = TagService.instance;
+  String? _selectedLoanId;
   // Currency is always ₮ (MNT), no selection needed
 
   bool get isEditing => widget.transaction != null;
@@ -30,14 +36,41 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Load loan data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LoanProvider>().loadAll();
+    });
+
     if (isEditing) {
       final transaction = widget.transaction!;
       _selectedType = transaction.type;
-      _amountController.text = NumberFormatter.formatWithDots(transaction.amount);
+      _amountController.text = NumberFormatter.formatWithDots(
+        transaction.amount,
+      );
       _noteController.text = transaction.note;
       _categoryController.text = transaction.category;
       _selectedDate = transaction.date;
+      _extractedTags = List<String>.from(transaction.tags);
+      _selectedLoanId = transaction.loanId;
       // Currency is always ₮ (MNT), no selection needed
+    }
+
+    // Add listener to extract tags when note changes
+    _noteController.addListener(_extractTagsFromNote);
+  }
+
+  void _extractTagsFromNote() {
+    final note = _noteController.text.trim();
+    if (note.isNotEmpty) {
+      final tags = _tagService.extractTagsFromTransaction(note);
+      setState(() {
+        _extractedTags = tags;
+      });
+    } else {
+      setState(() {
+        _extractedTags = [];
+      });
     }
   }
 
@@ -118,7 +151,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   if (value == null || value.isEmpty) {
                     return l10n.pleaseEnterAmount;
                   }
-                  String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                  String cleanValue = value
+                      .replaceAll('.', '')
+                      .replaceAll(',', '.');
                   if (double.tryParse(cleanValue) == null) {
                     return l10n.pleaseEnterValidNumber;
                   }
@@ -164,6 +199,50 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 },
               ),
               const SizedBox(height: 16),
+              // Loan selection field (only for expense transactions)
+              if (_selectedType == TransactionType.expense)
+                Consumer<LoanProvider>(
+                  builder: (context, loanProvider, child) {
+                    final activeLoans = loanProvider.loans
+                        .where((loan) => loan.remainingBalance > 0)
+                        .toList();
+
+                    if (activeLoans.isEmpty) return const SizedBox.shrink();
+
+                    return Column(
+                      children: [
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedLoanId,
+                          decoration: const InputDecoration(
+                            labelText: 'Loan (Optional)',
+                            border: OutlineInputBorder(),
+                            helperText: 'Select if this is a loan payment',
+                          ),
+                          items: [
+                            const DropdownMenuItem<String>(
+                              value: null,
+                              child: Text('None'),
+                            ),
+                            ...activeLoans.map((loan) {
+                              return DropdownMenuItem<String>(
+                                value: loan.id,
+                                child: Text(
+                                  '${loan.name} (₮${NumberFormatter.formatWithDots(loan.remainingBalance)} remaining)',
+                                ),
+                              );
+                            }),
+                          ],
+                          onChanged: (String? value) {
+                            setState(() {
+                              _selectedLoanId = value;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                ),
               InkWell(
                 onTap: _selectDate,
                 child: InputDecorator(
@@ -190,6 +269,41 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 ),
                 maxLines: 3,
               ),
+              // Extracted tags display
+              if (_extractedTags.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Extracted Tags:',
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: _extractedTags.map((tag) {
+                        return Chip(
+                          label: Text(
+                            tag,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.secondaryContainer,
+                          labelStyle: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSecondaryContainer,
+                          ),
+                          side: BorderSide.none,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -214,7 +328,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   Future<void> _saveTransaction() async {
     if (_formKey.currentState!.validate()) {
       final transactionProvider = context.read<TransactionProvider>();
-      final amount = double.parse(_amountController.text.replaceAll('.', '').replaceAll(',', '.'));
+      final amount = double.parse(
+        _amountController.text.replaceAll('.', '').replaceAll(',', '.'),
+      );
 
       if (isEditing) {
         final updatedTransaction = widget.transaction!;
@@ -225,6 +341,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           // currency is always ₮ (MNT), no parameter needed
           date: _selectedDate,
           note: _noteController.text.trim(),
+          tags: _extractedTags,
+          loanId: _selectedLoanId,
         );
         await transactionProvider.updateTransaction(updatedTransaction);
       } else {
@@ -235,6 +353,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
           // currency is always ₮ (MNT), no parameter needed
           date: _selectedDate,
           note: _noteController.text.trim(),
+          tags: _extractedTags,
+          loanId: _selectedLoanId,
         );
         await transactionProvider.addTransaction(newTransaction);
       }

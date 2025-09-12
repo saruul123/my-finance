@@ -485,22 +485,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               const Icon(Icons.calendar_today),
                               const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Эхлэх огноо',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Эхлэх огноо',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    _startDate != null
-                                        ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                                        : 'Огноо сонгох',
-                                  ),
-                                ],
+                                    Text(
+                                      _startDate != null
+                                          ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
+                                          : 'Огноо сонгох',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -521,22 +524,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               const Icon(Icons.calendar_today),
                               const SizedBox(width: 8),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Дуусах огноо',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Дуусах огноо',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    _endDate != null
-                                        ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
-                                        : 'Огноо сонгох',
-                                  ),
-                                ],
+                                    Text(
+                                      _endDate != null
+                                          ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
+                                          : 'Огноо сонгох',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),

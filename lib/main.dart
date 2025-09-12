@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'services/database_service.dart';
+import 'services/tag_service.dart';
 import 'services/app_lifecycle_service.dart';
 import 'services/auto_fetch_service.dart';
 import 'providers/transaction_provider.dart';
@@ -31,6 +32,7 @@ void main() async {
   
   try {
     await DatabaseService.init();
+    await TagService.init();
     runApp(const MyApp());
   } catch (e, stackTrace) {
     print('Critical error during app initialization: $e');

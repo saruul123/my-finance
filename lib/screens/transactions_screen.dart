@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/transaction.dart';
+import '../models/tag.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/auto_fetch_service.dart';
@@ -19,6 +20,7 @@ class TransactionsScreen extends StatefulWidget {
 class _TransactionsScreenState extends State<TransactionsScreen> {
   final _searchController = TextEditingController();
   bool _showFilters = false;
+  bool _showOnlyUntagged = true;
 
   @override
   void initState() {
@@ -232,7 +234,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${l10n.financialSummary} (${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'})',
+                  '${_showOnlyUntagged ? 'Untagged' : l10n.financialSummary} (${transactions.length} ${transactions.length == 1 ? 'transaction' : 'transactions'})',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -271,7 +273,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   child: _buildSummaryItem(
                     'Net',
                     totalNet,
-                    totalNet >= 0 ? Icons.account_balance_wallet : Icons.warning,
+                    totalNet >= 0
+                        ? Icons.account_balance_wallet
+                        : Icons.warning,
                     totalNet >= 0 ? Colors.green : Colors.red,
                   ),
                 ),
@@ -487,8 +491,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.transactions),
+        title: Text(_showOnlyUntagged ? 'Untagged Transactions' : l10n.transactions),
         actions: [
+          IconButton(
+            icon: Icon(_showOnlyUntagged ? Icons.visibility_off : Icons.visibility),
+            onPressed: () {
+              setState(() {
+                _showOnlyUntagged = !_showOnlyUntagged;
+              });
+            },
+            tooltip: _showOnlyUntagged ? 'Show All Transactions' : 'Show Only Untagged',
+          ),
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
@@ -507,7 +520,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         children: [
           _buildLastUpdatedHeader(),
           _buildEnhancedTransactionHeader(),
-          if (_showFilters) _buildFiltersSection(),
+          if (_showFilters) Flexible(child: _buildFiltersSection()),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _onRefresh,
@@ -517,7 +530,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               displacement: 60,
               child: Consumer<TransactionProvider>(
                 builder: (context, provider, child) {
-                  final transactions = provider.transactions;
+                  final transactions = _showOnlyUntagged 
+                      ? provider.transactions
+                          .where((transaction) => transaction.tags.isEmpty)
+                          .toList()
+                      : provider.transactions;
 
                   if (transactions.isEmpty) {
                     return CustomScrollView(
@@ -534,7 +551,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  l10n.noTransactionsYet,
+                                  _showOnlyUntagged 
+                                    ? 'No Untagged Transactions'
+                                    : l10n.noTransactionsYet,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     color: Colors.grey,
@@ -542,7 +561,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  l10n.tapToAddFirst,
+                                  _showOnlyUntagged 
+                                    ? 'All transactions have been tagged!'
+                                    : l10n.tapToAddFirst,
                                   style: const TextStyle(color: Colors.grey),
                                 ),
                                 const SizedBox(height: 16),
@@ -630,132 +651,194 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
         final l10n = AppLocalizations.of(context)!;
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Column(
-                children: [
-                  DropdownButtonFormField<TransactionType?>(
-                    initialValue: provider.selectedType,
-                    decoration: InputDecoration(
-                      labelText: l10n.type,
-                      border: const OutlineInputBorder(),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Column(
+                  children: [
+                    DropdownButtonFormField<TransactionType?>(
+                      initialValue: provider.selectedType,
+                      decoration: InputDecoration(
+                        labelText: l10n.type,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
+                      items: [
+                        DropdownMenuItem<TransactionType?>(
+                          value: null,
+                          child: Text(l10n.allTypes),
+                        ),
+                        ...TransactionType.values.map((type) {
+                          return DropdownMenuItem<TransactionType?>(
+                            value: type,
+                            child: Text(
+                              type == TransactionType.income
+                                  ? l10n.income
+                                  : l10n.expense,
+                            ),
+                          );
+                        }),
+                      ],
+                      onChanged: provider.filterByType,
                     ),
-                    items: [
-                      DropdownMenuItem<TransactionType?>(
-                        value: null,
-                        child: Text(l10n.allTypes),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String?>(
+                      initialValue: provider.selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: l10n.category,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
-                      ...TransactionType.values.map((type) {
-                        return DropdownMenuItem<TransactionType?>(
-                          value: type,
-                          child: Text(
-                            type == TransactionType.income
-                                ? l10n.income
-                                : l10n.expense,
-                          ),
-                        );
-                      }),
-                    ],
-                    onChanged: provider.filterByType,
+                      items: [
+                        DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text(l10n.allCategories),
+                        ),
+                        ...provider.allCategories.map((category) {
+                          return DropdownMenuItem<String?>(
+                            value: category,
+                            child: Text(
+                              category,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          );
+                        }),
+                      ],
+                      onChanged: provider.filterByCategory,
+                    ),
+                    const SizedBox(height: 16),
+                    // Tag Group Filter
+                    DropdownButtonFormField<TagGroup?>(
+                      initialValue: provider.selectedTagGroup,
+                      decoration: const InputDecoration(
+                        labelText: 'Tag Group',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: [
+                        const DropdownMenuItem<TagGroup?>(
+                          value: null,
+                          child: Text('All Groups'),
+                        ),
+                        ...TagGroup.values.map((group) {
+                          return DropdownMenuItem<TagGroup?>(
+                            value: group,
+                            child: Text(group.displayName),
+                          );
+                        }),
+                      ],
+                      onChanged: provider.filterByTagGroup,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Tag chips display
+                if (provider.allTags.isNotEmpty) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Filter by Tags:',
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: provider.allTags.map((tag) {
+                      final isSelected = provider.selectedTags.contains(tag);
+                      return FilterChip(
+                        label: Text(tag),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          final newTags = List<String>.from(
+                            provider.selectedTags,
+                          );
+                          if (selected) {
+                            newTags.add(tag);
+                          } else {
+                            newTags.remove(tag);
+                          }
+                          provider.filterByTags(newTags);
+                        },
+                      );
+                    }).toList(),
                   ),
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<String?>(
-                    initialValue: provider.selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: l10n.category,
-                      border: const OutlineInputBorder(),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                    ),
-                    items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text(l10n.allCategories),
-                      ),
-                      ...provider.allCategories.map((category) {
-                        return DropdownMenuItem<String?>(
-                          value: category,
+                ],
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _selectStartDate(provider),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: l10n.fromDate,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
                           child: Text(
-                            category,
-                            overflow: TextOverflow.ellipsis,
+                            provider.startDate != null
+                                ? DateFormat(
+                                    'MMM dd, yyyy',
+                                  ).format(provider.startDate!)
+                                : l10n.selectDate,
                           ),
-                        );
-                      }),
-                    ],
-                    onChanged: provider.filterByCategory,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectStartDate(provider),
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: l10n.fromDate,
-                          border: const OutlineInputBorder(),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        ),
-                        child: Text(
-                          provider.startDate != null
-                              ? DateFormat(
-                                  'MMM dd, yyyy',
-                                ).format(provider.startDate!)
-                              : l10n.selectDate,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: InkWell(
-                      onTap: () => _selectEndDate(provider),
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: l10n.toDate,
-                          border: const OutlineInputBorder(),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => _selectEndDate(provider),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: l10n.toDate,
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                           ),
-                        ),
-                        child: Text(
-                          provider.endDate != null
-                              ? DateFormat(
-                                  'MMM dd, yyyy',
-                                ).format(provider.endDate!)
-                              : l10n.selectDate,
+                          child: Text(
+                            provider.endDate != null
+                                ? DateFormat(
+                                    'MMM dd, yyyy',
+                                  ).format(provider.endDate!)
+                                : l10n.selectDate,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: provider.clearFilters,
-                      child: Text(l10n.clearFilters),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: provider.clearFilters,
+                        child: Text(l10n.clearFilters),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
