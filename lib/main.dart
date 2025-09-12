@@ -14,7 +14,7 @@ import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Configure system UI overlay to prevent overlap
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -23,13 +23,13 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   // Use manual system UI mode instead of edge-to-edge
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
   );
-  
+
   try {
     await DatabaseService.init();
     await TagService.init();
@@ -37,7 +37,7 @@ void main() async {
   } catch (e, stackTrace) {
     print('Critical error during app initialization: $e');
     print('Stack trace: $stackTrace');
-    
+
     // Try to run app with error recovery mode
     runApp(ErrorRecoveryApp(error: e.toString()));
   }
@@ -52,7 +52,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => LoanProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()..loadSettings()),
+        ChangeNotifierProvider(
+          create: (_) => SettingsProvider()..loadSettings(),
+        ),
         ChangeNotifierProvider.value(value: AutoFetchService.instance),
       ],
       child: Consumer<SettingsProvider>(
@@ -70,9 +72,9 @@ class MyApp extends StatelessWidget {
               ),
               useMaterial3: true,
             ),
-            themeMode: settingsProvider.darkModeEnabled 
-              ? ThemeMode.dark 
-              : ThemeMode.light,
+            themeMode: settingsProvider.darkModeEnabled
+                ? ThemeMode.dark
+                : ThemeMode.light,
             localizationsDelegates: const [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -81,9 +83,7 @@ class MyApp extends StatelessWidget {
             ],
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('mn'), // Default to Mongolian
-            home: const AppLifecycleService(
-              child: MainNavigationScreen(),
-            ),
+            home: const AppLifecycleService(child: MainNavigationScreen()),
             debugShowCheckedModeBanner: false,
           );
         },
@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
 
 class ErrorRecoveryApp extends StatelessWidget {
   final String error;
-  
+
   const ErrorRecoveryApp({super.key, required this.error});
 
   @override
@@ -124,10 +124,7 @@ class ErrorRecoveryApp extends StatelessWidget {
               const SizedBox(height: 24),
               const Text(
                 'Database Initialization Error',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -178,10 +175,7 @@ class ErrorRecoveryApp extends StatelessWidget {
               const SizedBox(height: 16),
               const Text(
                 'Note: This will clear all your data and settings. The app will restart with a fresh database.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -195,10 +189,10 @@ class ErrorRecoveryApp extends StatelessWidget {
     try {
       // Force clear all Hive data
       await DatabaseService.clearAllCorruptedData();
-      
+
       // Restart the app
       await DatabaseService.init();
-      
+
       // This would ideally restart the app, but for now we'll just show a success message
       print('Database reset successful. Please restart the app manually.');
     } catch (e) {
