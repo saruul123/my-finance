@@ -35,8 +35,8 @@ void main() async {
     await TagService.init();
     runApp(const MyApp());
   } catch (e, stackTrace) {
-    print('Critical error during app initialization: $e');
-    print('Stack trace: $stackTrace');
+    debugPrint('Critical error during app initialization: $e');
+    debugPrint('Stack trace: $stackTrace');
 
     // Try to run app with error recovery mode
     runApp(ErrorRecoveryApp(error: e.toString()));
@@ -194,9 +194,9 @@ class ErrorRecoveryApp extends StatelessWidget {
       await DatabaseService.init();
 
       // This would ideally restart the app, but for now we'll just show a success message
-      print('Database reset successful. Please restart the app manually.');
+      debugPrint('Database reset successful. Please restart the app manually.');
     } catch (e) {
-      print('Failed to reset database: $e');
+      debugPrint('Failed to reset database: $e');
     }
   }
 }

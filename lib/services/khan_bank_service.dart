@@ -22,7 +22,9 @@ class KhanBankService {
   /// Login to Khan Bank API and get access token
   Future<bool> login(String password) async {
     try {
-      print("Khan Bank login initiated for user: $username"); // --- IGNORE ---
+      print(
+        "Khan Bank login initiated for user: $username",
+      ); // --- IGNORE ---
       final encodedPassword = base64Encode(utf8.encode(password));
 
       // Simplified headers for Android compatibility
@@ -119,7 +121,9 @@ class KhanBankService {
       ).toIso8601String();
 
       transactionDate = {"lt": endDate, "gt": startDate};
-      print("Converted timestamps: $startMs -> $startDate, $endMs -> $endDate");
+      print(
+        "Converted timestamps: $startMs -> $startDate, $endMs -> $endDate",
+      );
     }
 
     final transactionAmount = {"lt": "0", "gt": "0"};
@@ -171,13 +175,17 @@ class KhanBankService {
 
       final url = _buildTransactionUrl(account, startTime, nowTime);
       print("Downloading transactions from: $url");
-      print("Date range parameters: startTime=$startTime, nowTime=$nowTime");
+      print(
+        "Date range parameters: startTime=$startTime, nowTime=$nowTime",
+      );
 
       final response = await http
           .get(Uri.parse(url), headers: headers)
           .timeout(const Duration(seconds: 30));
 
-      print("Transaction download response status: ${response.statusCode}");
+      print(
+        "Transaction download response status: ${response.statusCode}",
+      );
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -189,7 +197,9 @@ class KhanBankService {
         print(
           "Khan Bank transaction download error - Status: ${response.statusCode}",
         );
-        print("Khan Bank transaction download error - Body: ${response.body}");
+        print(
+          "Khan Bank transaction download error - Body: ${response.body}",
+        );
         return null;
       }
     } catch (e, stackTrace) {

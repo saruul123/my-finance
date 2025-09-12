@@ -90,14 +90,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.blue.withOpacity(0.05),
-                Colors.indigo.withOpacity(0.08),
+                Colors.blue.withValues(alpha: 0.05),
+                Colors.indigo.withValues(alpha: 0.08),
               ],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
             border: Border(
-              bottom: BorderSide(color: Colors.blue.withOpacity(0.2), width: 1),
+              bottom: BorderSide(
+                color: Colors.blue.withValues(alpha: 0.2),
+                width: 1,
+              ),
             ),
           ),
           child: Row(
@@ -105,7 +108,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: AnimatedRotation(
@@ -148,7 +151,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -209,7 +212,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         gradient: LinearGradient(
           colors: [
             Theme.of(context).colorScheme.primaryContainer,
-            Theme.of(context).colorScheme.primaryContainer.withOpacity(0.7),
+            Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: 0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -217,7 +222,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -302,7 +307,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(
               context,
-            ).colorScheme.onPrimaryContainer.withOpacity(0.8),
+            ).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
           ),
           textAlign: TextAlign.center,
           maxLines: 1,
@@ -322,7 +327,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       ],
     );
   }
-
 
   Widget _buildDayGroup(
     DateTime date,
@@ -371,10 +375,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           decoration: BoxDecoration(
             color: Theme.of(
               context,
-            ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -394,7 +400,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -461,16 +467,22 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_showOnlyUntagged ? 'Untagged Transactions' : l10n.transactions),
+        title: Text(
+          _showOnlyUntagged ? 'Untagged Transactions' : l10n.transactions,
+        ),
         actions: [
           IconButton(
-            icon: Icon(_showOnlyUntagged ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(
+              _showOnlyUntagged ? Icons.visibility_off : Icons.visibility,
+            ),
             onPressed: () {
               setState(() {
                 _showOnlyUntagged = !_showOnlyUntagged;
               });
             },
-            tooltip: _showOnlyUntagged ? 'Show All Transactions' : 'Show Only Untagged',
+            tooltip: _showOnlyUntagged
+                ? 'Show All Transactions'
+                : 'Show Only Untagged',
           ),
           IconButton(
             icon: const Icon(Icons.filter_list),
@@ -500,10 +512,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               displacement: 60,
               child: Consumer<TransactionProvider>(
                 builder: (context, provider, child) {
-                  final transactions = _showOnlyUntagged 
+                  final transactions = _showOnlyUntagged
                       ? provider.transactions
-                          .where((transaction) => transaction.tags.isEmpty)
-                          .toList()
+                            .where((transaction) => transaction.tags.isEmpty)
+                            .toList()
                       : provider.transactions;
 
                   if (transactions.isEmpty) {
@@ -521,9 +533,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  _showOnlyUntagged 
-                                    ? 'No Untagged Transactions'
-                                    : l10n.noTransactionsYet,
+                                  _showOnlyUntagged
+                                      ? 'No Untagged Transactions'
+                                      : l10n.noTransactionsYet,
                                   style: const TextStyle(
                                     fontSize: 18,
                                     color: Colors.grey,
@@ -531,9 +543,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  _showOnlyUntagged 
-                                    ? 'All transactions have been tagged!'
-                                    : l10n.tapToAddFirst,
+                                  _showOnlyUntagged
+                                      ? 'All transactions have been tagged!'
+                                      : l10n.tapToAddFirst,
                                   style: const TextStyle(color: Colors.grey),
                                 ),
                                 const SizedBox(height: 16),
@@ -954,13 +966,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.purple.withOpacity(0.3),
+                color: Colors.purple.withValues(alpha: 0.3),
                 blurRadius: 25,
                 offset: const Offset(0, 12),
                 spreadRadius: -5,
               ),
               BoxShadow(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 blurRadius: 1,
                 offset: const Offset(1, 1),
                 spreadRadius: 0,
@@ -975,10 +987,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -996,7 +1008,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         Text(
                           'Энэ сарын төлөв',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1022,10 +1034,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -1044,10 +1056,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     width: 1,
                   ),
                 ),
@@ -1068,7 +1080,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               Text(
                                 'Орлого',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -1090,7 +1102,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                     Container(
                       width: 1,
                       height: 40,
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -1108,7 +1120,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               Text(
                                 'Зарлага',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),

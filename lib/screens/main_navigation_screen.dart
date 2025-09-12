@@ -41,13 +41,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],
         border: Border.all(
-          color: Colors.grey.withOpacity(0.15),
+          color: Colors.grey.withValues(alpha: 0.15),
           width: 0.5,
         ),
       ),
@@ -85,7 +85,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     required int index,
   }) {
     final isSelected = _currentIndex == index;
-    
+
     return Expanded(
       child: InkWell(
         onTap: () {
@@ -99,9 +99,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           curve: Curves.easeInOut,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected 
-              ? const Color(0xFF2563EB).withOpacity(0.08)
-              : Colors.transparent,
+            color: isSelected
+                ? const Color(0xFF2563EB).withValues(alpha: 0.08)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
@@ -114,9 +114,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 32,
-                  color: isSelected 
-                    ? const Color(0xFF2563EB) // Professional blue
-                    : Colors.grey.shade600,
+                  color: isSelected
+                      ? const Color(0xFF2563EB) // Professional blue
+                      : Colors.grey.shade600,
                 ),
               ),
               const SizedBox(height: 6),

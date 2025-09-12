@@ -35,7 +35,9 @@ void main() {
     expect(find.text('Test App'), findsOneWidget);
   });
 
-  testWidgets('Navigation should have correct tabs', (WidgetTester tester) async {
+  testWidgets('Navigation should have correct tabs', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 

@@ -121,8 +121,10 @@ class CategorizationRule extends HiveObject {
   }
 
   bool matches(String transactionRemarks) {
-    final text = caseSensitive ? transactionRemarks : transactionRemarks.toLowerCase();
-    
+    final text = caseSensitive
+        ? transactionRemarks
+        : transactionRemarks.toLowerCase();
+
     for (final keyword in keywords) {
       final searchKeyword = caseSensitive ? keyword : keyword.toLowerCase();
       if (text.contains(searchKeyword)) {
@@ -153,8 +155,12 @@ class CategorizationRule extends HiveObject {
       category: json['category'] ?? '',
       isEnabled: json['isEnabled'] ?? true,
       caseSensitive: json['caseSensitive'] ?? false,
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
+      updatedAt: DateTime.parse(
+        json['updatedAt'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 }

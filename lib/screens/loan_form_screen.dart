@@ -36,10 +36,16 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
     if (isEditing) {
       final loan = widget.loan!;
       _nameController.text = loan.name;
-      _principalController.text = NumberFormatter.formatWithDots(loan.principal);
-      _monthlyPaymentController.text = NumberFormatter.formatWithDots(loan.monthlyPayment);
+      _principalController.text = NumberFormatter.formatWithDots(
+        loan.principal,
+      );
+      _monthlyPaymentController.text = NumberFormatter.formatWithDots(
+        loan.monthlyPayment,
+      );
       _interestRateController.text = loan.interestRate.toString();
-      _remainingBalanceController.text = NumberFormatter.formatWithDots(loan.remainingBalance);
+      _remainingBalanceController.text = NumberFormatter.formatWithDots(
+        loan.remainingBalance,
+      );
       _startDate = loan.startDate;
       _endDate = loan.endDate;
       _hasEndDate = loan.endDate != null;
@@ -51,9 +57,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
 
   void _updateRemainingBalance() {
     // Only auto-update if remaining balance is empty or equals current principal
-    if (_remainingBalanceController.text.isEmpty || 
-        (_principalController.text.isNotEmpty && 
-         _remainingBalanceController.text == _principalController.text)) {
+    if (_remainingBalanceController.text.isEmpty ||
+        (_principalController.text.isNotEmpty &&
+            _remainingBalanceController.text == _principalController.text)) {
       _remainingBalanceController.text = _principalController.text;
     }
   }
@@ -122,7 +128,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                           if (value == null || value.isEmpty) {
                             return l10n.pleaseEnterAmount;
                           }
-                          String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                          String cleanValue = value
+                              .replaceAll('.', '')
+                              .replaceAll(',', '.');
                           if (double.tryParse(cleanValue) == null) {
                             return l10n.pleaseEnterValidNumber;
                           }
@@ -149,7 +157,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                           if (value == null || value.isEmpty) {
                             return l10n.monthlyPaymentRequired;
                           }
-                          String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                          String cleanValue = value
+                              .replaceAll('.', '')
+                              .replaceAll(',', '.');
                           if (double.tryParse(cleanValue) == null) {
                             return l10n.pleaseEnterValidNumber;
                           }
@@ -202,7 +212,9 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
                             // Set to principal amount if empty
                             return null;
                           }
-                          String cleanValue = value.replaceAll('.', '').replaceAll(',', '.');
+                          String cleanValue = value
+                              .replaceAll('.', '')
+                              .replaceAll(',', '.');
                           if (double.tryParse(cleanValue) == null) {
                             return l10n.pleaseEnterValidNumber;
                           }
@@ -353,14 +365,22 @@ class _LoanFormScreenState extends State<LoanFormScreen> {
       final loanProvider = context.read<LoanProvider>();
 
       final name = _nameController.text.trim();
-      final principal = double.parse(_principalController.text.replaceAll('.', '').replaceAll(',', '.'));
-      final monthlyPayment = double.parse(_monthlyPaymentController.text.replaceAll('.', '').replaceAll(',', '.'));
+      final principal = double.parse(
+        _principalController.text.replaceAll('.', '').replaceAll(',', '.'),
+      );
+      final monthlyPayment = double.parse(
+        _monthlyPaymentController.text.replaceAll('.', '').replaceAll(',', '.'),
+      );
       final interestRate = double.parse(_interestRateController.text);
-      
+
       // Use remaining balance if provided, otherwise use principal amount
-      final remainingBalance = _remainingBalanceController.text.trim().isEmpty 
-        ? principal 
-        : double.parse(_remainingBalanceController.text.replaceAll('.', '').replaceAll(',', '.'));
+      final remainingBalance = _remainingBalanceController.text.trim().isEmpty
+          ? principal
+          : double.parse(
+              _remainingBalanceController.text
+                  .replaceAll('.', '')
+                  .replaceAll(',', '.'),
+            );
 
       if (isEditing) {
         final updatedLoan = widget.loan!;

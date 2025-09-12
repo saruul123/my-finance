@@ -52,16 +52,16 @@ class TransactionProvider extends ChangeNotifier {
     for (final transaction in _transactions) {
       // Skip if transaction already has tags or has no note
       if (transaction.tags.isNotEmpty || transaction.note.isEmpty) continue;
-      
+
       List<String> extractedTags = [];
-      
+
       // Use enhanced loan tagging for loan transactions
       if (transaction.isLoanPayment && transaction.loanId != null) {
         final loan = _databaseService.getLoan(transaction.loanId!);
         if (loan != null) {
           // Calculate breakdown if possible
           final breakdown = loan.calculatePaymentBreakdown(transaction.amount);
-          
+
           extractedTags = _tagService.extractLoanTags(
             transactionRemarks: '${transaction.note} ${transaction.category}',
             amount: transaction.amount,
@@ -73,9 +73,11 @@ class TransactionProvider extends ChangeNotifier {
         }
       } else {
         // Use regular tag extraction for non-loan transactions
-        extractedTags = _tagService.extractTagsFromTransaction(transaction.note);
+        extractedTags = _tagService.extractTagsFromTransaction(
+          transaction.note,
+        );
       }
-      
+
       if (extractedTags.isNotEmpty) {
         transaction.tags = extractedTags;
         _databaseService.updateTransaction(transaction);
@@ -109,19 +111,19 @@ class TransactionProvider extends ChangeNotifier {
         );
       }
     }
-    
+
     // Regular tag suggestions
     return _tagService.extractTagsFromTransaction('$note $category');
   }
 
   Future<void> addTransaction(Transaction transaction) async {
     await _databaseService.addTransaction(transaction);
-    
+
     // If this is a loan payment transaction, process the loan
     if (transaction.isLoanPayment && transaction.loanId != null) {
       await _processLoanTransaction(transaction);
     }
-    
+
     loadTransactions();
   }
 
@@ -190,7 +192,9 @@ class TransactionProvider extends ChangeNotifier {
 
       // Filter by specific tags (all selected tags must be present)
       if (_selectedTags.isNotEmpty) {
-        bool hasAllTags = _selectedTags.every((tag) => transaction.tags.contains(tag));
+        bool hasAllTags = _selectedTags.every(
+          (tag) => transaction.tags.contains(tag),
+        );
         if (!hasAllTags) {
           return false;
         }
@@ -198,8 +202,13 @@ class TransactionProvider extends ChangeNotifier {
 
       // Filter by tag group (transaction must have at least one tag from the group)
       if (_selectedTagGroup != null) {
-        final groupTags = _tagService.getTagsByGroup(_selectedTagGroup!).map((t) => t.name).toList();
-        bool hasTagFromGroup = transaction.tags.any((tag) => groupTags.contains(tag));
+        final groupTags = _tagService
+            .getTagsByGroup(_selectedTagGroup!)
+            .map((t) => t.name)
+            .toList();
+        bool hasTagFromGroup = transaction.tags.any(
+          (tag) => groupTags.contains(tag),
+        );
         if (!hasTagFromGroup) {
           return false;
         }
@@ -278,11 +287,13 @@ class TransactionProvider extends ChangeNotifier {
     }
 
     for (final transaction in _transactions) {
-      if (transaction.type == TransactionType.expense && transaction.tags.isNotEmpty) {
+      if (transaction.type == TransactionType.expense &&
+          transaction.tags.isNotEmpty) {
         final tagGroups = _tagService.groupTagsByCategory(transaction.tags);
         for (final entry in tagGroups.entries) {
           if (entry.value.isNotEmpty) {
-            groupExpenses[entry.key] = (groupExpenses[entry.key] ?? 0) + transaction.amount;
+            groupExpenses[entry.key] =
+                (groupExpenses[entry.key] ?? 0) + transaction.amount;
           }
         }
       }
@@ -325,34 +336,35 @@ class TransactionProvider extends ChangeNotifier {
 
   Future<void> _processLoanTransaction(Transaction transaction) async {
     if (transaction.loanId == null) return;
-    
+
     final loan = _databaseService.getLoan(transaction.loanId!);
     if (loan == null) return;
-    
+
     // Calculate payment breakdown (principal and interest)
     final breakdown = loan.calculatePaymentBreakdown(transaction.amount);
     final principalAmount = breakdown['principal']!;
     final interestAmount = breakdown['interest']!;
-    
+
     // Update loan balance
     loan.makePaymentWithBreakdown(transaction.amount);
     await _databaseService.updateLoan(loan);
-    
+
     // Create a payment record
     final payment = Payment.create(
       loanId: loan.id,
       date: transaction.date,
       amount: transaction.amount,
-      note: 'Principal: ${principalAmount.toStringAsFixed(2)} MNT, Interest: ${interestAmount.toStringAsFixed(2)} MNT',
+      note:
+          'Principal: ${principalAmount.toStringAsFixed(2)} MNT, Interest: ${interestAmount.toStringAsFixed(2)} MNT',
     );
-    
+
     await _databaseService.addPayment(payment);
-    
+
     // Update transaction note with breakdown info if not already present
     if (!transaction.note.contains('Principal:')) {
-      transaction.note = transaction.note.isEmpty 
-        ? payment.note 
-        : '${transaction.note}. ${payment.note}';
+      transaction.note = transaction.note.isEmpty
+          ? payment.note
+          : '${transaction.note}. ${payment.note}';
       transaction.updatedAt = DateTime.now();
       await _databaseService.updateTransaction(transaction);
     }
@@ -370,7 +382,7 @@ class TransactionProvider extends ChangeNotifier {
     // Merge with existing tags (avoid duplicates)
     final existingTags = Set<String>.from(transaction.tags);
     final allTags = existingTags..addAll(enhancedTags);
-    
+
     // Update transaction with enhanced tags
     if (allTags.length > existingTags.length) {
       transaction.tags = allTags.toList()..sort();
@@ -380,7 +392,9 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   List<Transaction> getLoanTransactions(String loanId) {
-    return _transactions.where((transaction) => transaction.loanId == loanId).toList();
+    return _transactions
+        .where((transaction) => transaction.loanId == loanId)
+        .toList();
   }
 
   double get adjustedTotalIncome {
@@ -401,7 +415,7 @@ class TransactionProvider extends ChangeNotifier {
     final now = DateTime.now();
     final startOfMonth = DateTime(now.year, now.month, 1);
     final endOfMonth = DateTime(now.year, now.month + 1, 0);
-    
+
     double monthIncome = 0.0;
     for (final transaction in _transactions) {
       if (transaction.type == TransactionType.income &&

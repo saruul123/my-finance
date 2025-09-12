@@ -87,7 +87,7 @@ class _CategorizationSettingsScreenState
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.indigo.withOpacity(0.1), Colors.white],
+            colors: [Colors.indigo.withValues(alpha: 0.1), Colors.white],
             stops: const [0.0, 0.3],
           ),
         ),
@@ -112,7 +112,7 @@ class _CategorizationSettingsScreenState
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.indigo.withOpacity(0.1),
+                color: Colors.indigo.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: const Icon(Icons.category, size: 64, color: Colors.indigo),
@@ -155,8 +155,8 @@ class _CategorizationSettingsScreenState
           colors: [
             Colors.white,
             rule.isEnabled
-                ? Colors.indigo.withOpacity(0.05)
-                : Colors.grey.withOpacity(0.05),
+                ? Colors.indigo.withValues(alpha: 0.05)
+                : Colors.grey.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -164,8 +164,8 @@ class _CategorizationSettingsScreenState
         boxShadow: [
           BoxShadow(
             color: rule.isEnabled
-                ? Colors.indigo.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.1),
+                ? Colors.indigo.withValues(alpha: 0.1)
+                : Colors.grey.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -185,8 +185,8 @@ class _CategorizationSettingsScreenState
             boxShadow: [
               BoxShadow(
                 color: rule.isEnabled
-                    ? Colors.green.withOpacity(0.3)
-                    : Colors.grey.withOpacity(0.3),
+                    ? Colors.green.withValues(alpha: 0.3)
+                    : Colors.grey.withValues(alpha: 0.3),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -211,9 +211,9 @@ class _CategorizationSettingsScreenState
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.indigo.withOpacity(0.1),
+                color: Colors.indigo.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.indigo.withOpacity(0.3)),
+                border: Border.all(color: Colors.indigo.withValues(alpha: 0.3)),
               ),
               child: Text(
                 'Ангилал: ${rule.category}',
@@ -235,10 +235,10 @@ class _CategorizationSettingsScreenState
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.1),
+                        color: Colors.orange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.orange.withOpacity(0.3),
+                          color: Colors.orange.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
@@ -259,10 +259,10 @@ class _CategorizationSettingsScreenState
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.1),
+                                color: Colors.grey.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: Colors.grey.withOpacity(0.3),
+                                  color: Colors.grey.withValues(alpha: 0.3),
                                 ),
                               ),
                               child: Text(
@@ -501,8 +501,8 @@ class _CategorizationSettingsScreenState
       await CategorizationService.instance.addRule(rule);
     }
 
-    Navigator.of(context).pop();
     if (mounted) {
+      Navigator.of(context).pop();
       _loadRules();
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -533,7 +533,7 @@ class _CategorizationSettingsScreenState
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              if (mounted) Navigator.of(context).pop();
               await CategorizationService.instance.resetToDefaults();
               if (mounted) {
                 _loadRules();

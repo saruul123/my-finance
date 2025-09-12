@@ -159,15 +159,15 @@ class _LoansScreenState extends State<LoansScreen>
           Expanded(
             child: Card(
               elevation: 6,
-              shadowColor: Colors.blue.withOpacity(0.2),
+              shadowColor: Colors.blue.withValues(alpha: 0.2),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.blue.withOpacity(0.05),
-                      Colors.blue.withOpacity(0.1),
+                      Colors.blue.withValues(alpha: 0.05),
+                      Colors.blue.withValues(alpha: 0.1),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -181,7 +181,7 @@ class _LoansScreenState extends State<LoansScreen>
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
+                            color: Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -226,15 +226,15 @@ class _LoansScreenState extends State<LoansScreen>
           Expanded(
             child: Card(
               elevation: 6,
-              shadowColor: Colors.orange.withOpacity(0.2),
+              shadowColor: Colors.orange.withValues(alpha: 0.2),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.orange.withOpacity(0.05),
-                      Colors.orange.withOpacity(0.1),
+                      Colors.orange.withValues(alpha: 0.05),
+                      Colors.orange.withValues(alpha: 0.1),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -248,7 +248,7 @@ class _LoansScreenState extends State<LoansScreen>
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -439,13 +439,13 @@ class _LoansScreenState extends State<LoansScreen>
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.indigo.withOpacity(0.3),
+            color: Colors.indigo.withValues(alpha: 0.3),
             blurRadius: 25,
             offset: const Offset(0, 12),
             spreadRadius: -5,
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             blurRadius: 1,
             offset: const Offset(0, 1),
             spreadRadius: 0,
@@ -460,10 +460,10 @@ class _LoansScreenState extends State<LoansScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -481,7 +481,7 @@ class _LoansScreenState extends State<LoansScreen>
                     Text(
                       l10n.totalBalance,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -505,10 +505,10 @@ class _LoansScreenState extends State<LoansScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -527,10 +527,10 @@ class _LoansScreenState extends State<LoansScreen>
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 width: 1,
               ),
             ),
@@ -544,14 +544,14 @@ class _LoansScreenState extends State<LoansScreen>
                         children: [
                           Icon(
                             Icons.trending_up,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             size: 16,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             l10n.monthlyPaymentTotal,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -575,7 +575,7 @@ class _LoansScreenState extends State<LoansScreen>
                 Container(
                   width: 1,
                   height: 40,
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -586,14 +586,14 @@ class _LoansScreenState extends State<LoansScreen>
                         children: [
                           Icon(
                             Icons.pie_chart,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             size: 16,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             'Total Paid', // Using English as there's no direct l10n equivalent
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),

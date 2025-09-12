@@ -41,10 +41,10 @@ class TransactionListItem extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: amountColor.withOpacity(0.1),
+                    color: amountColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: amountColor.withOpacity(0.3),
+                      color: amountColor.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -86,7 +86,9 @@ class TransactionListItem extends StatelessWidget {
                         Text(
                           transaction.note,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -129,7 +131,7 @@ class TransactionListItem extends StatelessWidget {
                                           ),
                                           decoration: BoxDecoration(
                                             color: theme.colorScheme.outline
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                             borderRadius: BorderRadius.circular(
                                               12,
                                             ),
@@ -191,10 +193,10 @@ class TransactionListItem extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: amountColor.withOpacity(0.1),
+                        color: amountColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: amountColor.withOpacity(0.3),
+                          color: amountColor.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -216,7 +218,9 @@ class TransactionListItem extends StatelessWidget {
                         child: IconButton(
                           icon: const Icon(Icons.more_vert),
                           iconSize: 16,
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                           onPressed: () => _showOptionsMenu(context),
                           padding: EdgeInsets.zero,
                         ),

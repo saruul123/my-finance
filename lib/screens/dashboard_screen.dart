@@ -78,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).primaryColor.withOpacity(0.3),
+              color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 5),
             ),
@@ -132,8 +132,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Card(
             elevation: 8,
             shadowColor: isPositive
-                ? Colors.green.withOpacity(0.3)
-                : Colors.red.withOpacity(0.3),
+                ? Colors.green.withValues(alpha: 0.3)
+                : Colors.red.withValues(alpha: 0.3),
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -157,8 +157,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: isPositive
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.red.withOpacity(0.2),
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : Colors.red.withValues(alpha: 0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -172,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -185,7 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Text(
                         l10n.totalBalance,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                         ),
@@ -202,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       letterSpacing: 1.2,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           offset: const Offset(0, 2),
                           blurRadius: 4,
                         ),
@@ -216,10 +216,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -228,7 +228,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -245,7 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               Text(
                                 l10n.thisMonth,
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -266,7 +266,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           monthlyBalance >= 0
                               ? Icons.arrow_upward
                               : Icons.arrow_downward,
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           size: 18,
                         ),
                       ],
@@ -394,7 +394,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Great job! You have no active loans.',
+                      'Сайн байна! Танд идэвхтэй зээл алга байна.',
                       style: TextStyle(
                         color: Colors.green.shade600,
                         fontSize: 14,
@@ -419,10 +419,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     gradient: LinearGradient(
-                      colors: [
-                        Colors.red.shade50,
-                        Colors.red.shade100,
-                      ],
+                      colors: [Colors.red.shade50, Colors.red.shade100],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -432,16 +429,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.account_balance_wallet, 
-                            color: Colors.red.shade600, size: 28),
+                          Icon(
+                            Icons.account_balance_wallet,
+                            color: Colors.red.shade600,
+                            size: 28,
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Loan Portfolio',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red.shade800,
-                              ),
+                              'Зээлийн багц',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.shade800,
+                                  ),
                             ),
                           ),
                           TextButton.icon(
@@ -461,12 +462,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      
+
                       // Loan Statistics Grid
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -475,8 +476,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 Expanded(
                                   child: _buildLoanStatItem(
-                                    'Total Debt',
-                                    settingsProvider.formatAmount(totalLoanBalance),
+                                    'Нийт өр',
+                                    settingsProvider.formatAmount(
+                                      totalLoanBalance,
+                                    ),
                                     Icons.monetization_on,
                                     Colors.red,
                                   ),
@@ -484,7 +487,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildLoanStatItem(
-                                    'Total Paid',
+                                    'Нийт төлсөн',
                                     settingsProvider.formatAmount(totalPaid),
                                     Icons.payment,
                                     Colors.green,
@@ -497,7 +500,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 Expanded(
                                   child: _buildLoanStatItem(
-                                    'Active Loans',
+                                    'Идэвхтэй зээл',
                                     '${activeLoans.length}',
                                     Icons.list_alt,
                                     Colors.blue,
@@ -506,9 +509,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: _buildLoanStatItem(
-                                    'Monthly Payment',
+                                    'Сарын төлбөр',
                                     settingsProvider.formatAmount(
-                                      loanProvider.getMonthlyPaymentTotal()
+                                      loanProvider.getMonthlyPaymentTotal(),
                                     ),
                                     Icons.calendar_month,
                                     Colors.orange,
@@ -521,44 +524,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
 
                       // Alert Section for Overdue/Due Soon
-                      if (overdueLoans.isNotEmpty || loansDueSoon.isNotEmpty) ...[
+                      if (overdueLoans.isNotEmpty ||
+                          loansDueSoon.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: overdueLoans.isNotEmpty 
-                              ? Colors.red.shade100 
-                              : Colors.orange.shade100,
+                            color: overdueLoans.isNotEmpty
+                                ? Colors.red.shade100
+                                : Colors.orange.shade100,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: overdueLoans.isNotEmpty 
-                                ? Colors.red.shade300 
-                                : Colors.orange.shade300,
+                              color: overdueLoans.isNotEmpty
+                                  ? Colors.red.shade300
+                                  : Colors.orange.shade300,
                               width: 1,
                             ),
                           ),
                           child: Row(
                             children: [
                               Icon(
-                                overdueLoans.isNotEmpty 
-                                  ? Icons.warning 
-                                  : Icons.schedule,
-                                color: overdueLoans.isNotEmpty 
-                                  ? Colors.red.shade600 
-                                  : Colors.orange.shade600,
+                                overdueLoans.isNotEmpty
+                                    ? Icons.warning
+                                    : Icons.schedule,
+                                color: overdueLoans.isNotEmpty
+                                    ? Colors.red.shade600
+                                    : Colors.orange.shade600,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   overdueLoans.isNotEmpty
-                                    ? '${overdueLoans.length} loan(s) overdue!'
-                                    : '${loansDueSoon.length} loan(s) due soon',
+                                      ? '${overdueLoans.length} зээл хугацаа хэтэрсэн!'
+                                      : '${loansDueSoon.length} зээлийн хугацаа дуусах гэж байна',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    color: overdueLoans.isNotEmpty 
-                                      ? Colors.red.shade700 
-                                      : Colors.orange.shade700,
+                                    color: overdueLoans.isNotEmpty
+                                        ? Colors.red.shade700
+                                        : Colors.orange.shade700,
                                   ),
                                 ),
                               ),
@@ -572,12 +576,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
 
               // Loan Progress Chart
-              if (activeLoans.isNotEmpty) _buildLoanProgressChart(activeLoans, settingsProvider),
+              if (activeLoans.isNotEmpty)
+                _buildLoanProgressChart(activeLoans, settingsProvider),
 
               // Individual Loan Cards
-              ...activeLoans.take(3).map((loan) => _buildEnhancedLoanCard(
-                loan, settingsProvider, l10n, loanProvider)),
-              
+              ...activeLoans
+                  .take(3)
+                  .map(
+                    (loan) => _buildEnhancedLoanCard(
+                      loan,
+                      settingsProvider,
+                      l10n,
+                      loanProvider,
+                    ),
+                  ),
+
               // Show More Button if there are more than 3 loans
               if (activeLoans.length > 3)
                 Container(
@@ -591,7 +604,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     },
                     icon: const Icon(Icons.expand_more),
-                    label: Text('View ${activeLoans.length - 3} More Loans'),
+                    label: Text('${activeLoans.length - 3} зээл илүү үзэх'),
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.blue.shade700,
                     ),
@@ -604,13 +617,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildLoanStatItem(String title, String value, IconData icon, Color color) {
+  Widget _buildLoanStatItem(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -624,7 +642,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   title,
                   style: TextStyle(
                     fontSize: 11,
-                    color: color.withOpacity(0.8),
+                    color: color.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -645,7 +663,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildLoanProgressChart(List<Loan> loans, SettingsProvider settingsProvider) {
+  Widget _buildLoanProgressChart(
+    List<Loan> loans,
+    SettingsProvider settingsProvider,
+  ) {
     return Card(
       elevation: 6,
       margin: const EdgeInsets.only(top: 16),
@@ -659,7 +680,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Icon(Icons.donut_small, color: Colors.indigo.shade600),
                 const SizedBox(width: 12),
                 Text(
-                  'Loan Progress Overview',
+                  'Зээлийн явцын',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -679,44 +700,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            ...loans.take(5).map((loan) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: _getCategoryColor(loans.indexOf(loan)),
-                      shape: BoxShape.circle,
+            ...loans
+                .take(5)
+                .map(
+                  (loan) => Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: _getCategoryColor(loans.indexOf(loan)),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            loan.name,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                        Text(
+                          '${loan.progressPercentage.toStringAsFixed(1)}%',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      loan.name,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  Text(
-                    '${loan.progressPercentage.toStringAsFixed(1)}%',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            )),
+                ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEnhancedLoanCard(Loan loan, SettingsProvider settingsProvider, 
-      AppLocalizations l10n, LoanProvider loanProvider) {
+  Widget _buildEnhancedLoanCard(
+    Loan loan,
+    SettingsProvider settingsProvider,
+    AppLocalizations l10n,
+    LoanProvider loanProvider,
+  ) {
     final progress = loan.progressPercentage / 100;
     final isOverdue = loan.isOverdue;
     final isDueSoon = loan.isDueSoon;
-    
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.only(top: 12),
@@ -725,8 +754,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
             colors: [
-              isOverdue ? Colors.red.shade50 : 
-              isDueSoon ? Colors.orange.shade50 : Colors.blue.shade50,
+              isOverdue
+                  ? Colors.red.shade50
+                  : isDueSoon
+                  ? Colors.orange.shade50
+                  : Colors.blue.shade50,
               Colors.white,
             ],
             begin: Alignment.topLeft,
@@ -738,12 +770,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ListTile(
               contentPadding: const EdgeInsets.all(16),
               leading: CircleAvatar(
-                backgroundColor: isOverdue ? Colors.red.shade100 : 
-                  isDueSoon ? Colors.orange.shade100 : Colors.blue.shade100,
+                backgroundColor: isOverdue
+                    ? Colors.red.shade100
+                    : isDueSoon
+                    ? Colors.orange.shade100
+                    : Colors.blue.shade100,
                 child: Icon(
                   Icons.account_balance,
-                  color: isOverdue ? Colors.red.shade600 : 
-                    isDueSoon ? Colors.orange.shade600 : Colors.blue.shade600,
+                  color: isOverdue
+                      ? Colors.red.shade600
+                      : isDueSoon
+                      ? Colors.orange.shade600
+                      : Colors.blue.shade600,
                 ),
               ),
               title: Text(
@@ -758,7 +796,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   const SizedBox(height: 4),
                   Text(
-                    '${settingsProvider.formatAmount(loan.remainingBalance)} remaining',
+                    '${settingsProvider.formatAmount(loan.remainingBalance)} үлдсэн',
                     style: TextStyle(
                       color: Colors.red.shade600,
                       fontWeight: FontWeight.w600,
@@ -767,11 +805,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (loan.endDate != null) ...[
                     const SizedBox(height: 2),
                     Text(
-                      'Due: ${DateFormat('MMM dd, yyyy').format(loan.endDate!)}',
+                      'Дуусах: ${DateFormat('MMM dd, yyyy').format(loan.endDate!)}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: isOverdue ? Colors.red.shade600 : 
-                          isDueSoon ? Colors.orange.shade600 : Colors.grey.shade600,
+                        color: isOverdue
+                            ? Colors.red.shade600
+                            : isDueSoon
+                            ? Colors.orange.shade600
+                            : Colors.grey.shade600,
                       ),
                     ),
                   ],
@@ -780,28 +821,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               trailing: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isOverdue ? Colors.red.shade100 : 
-                    isDueSoon ? Colors.orange.shade100 : Colors.green.shade100,
+                  color: isOverdue
+                      ? Colors.red.shade100
+                      : isDueSoon
+                      ? Colors.orange.shade100
+                      : Colors.green.shade100,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '${loan.progressPercentage.toStringAsFixed(0)}%',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: isOverdue ? Colors.red.shade700 : 
-                      isDueSoon ? Colors.orange.shade700 : Colors.green.shade700,
+                    color: isOverdue
+                        ? Colors.red.shade700
+                        : isDueSoon
+                        ? Colors.orange.shade700
+                        : Colors.green.shade700,
                   ),
                 ),
               ),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const LoansScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const LoansScreen()),
                 );
               },
             ),
-            
+
             // Progress Bar
             Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -811,7 +856,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Progress',
+                        'Явц',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -819,7 +864,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       Text(
-                        settingsProvider.formatAmount(loan.principal - loan.remainingBalance),
+                        settingsProvider.formatAmount(
+                          loan.principal - loan.remainingBalance,
+                        ),
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -833,8 +880,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     value: progress,
                     backgroundColor: Colors.grey.shade200,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isOverdue ? Colors.red.shade400 : 
-                      isDueSoon ? Colors.orange.shade400 : Colors.green.shade400,
+                      isOverdue
+                          ? Colors.red.shade400
+                          : isDueSoon
+                          ? Colors.orange.shade400
+                          : Colors.green.shade400,
                     ),
                     minHeight: 6,
                   ),
@@ -851,7 +901,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return loans.asMap().entries.map((entry) {
       final loan = entry.value;
       final progress = loan.progressPercentage;
-      
+
       return PieChartSectionData(
         color: _getCategoryColor(entry.key),
         value: loan.principal,
@@ -899,17 +949,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Consumer2<TransactionProvider, SettingsProvider>(
       builder: (context, transactionProvider, settingsProvider, child) {
         final transactions = transactionProvider.transactions;
-        
+
         // Calculate this month's data
         final now = DateTime.now();
-        final thisMonth = transactions.where((t) => 
-          t.date.year == now.year && t.date.month == now.month).toList();
-        
-        final monthlyIncome = thisMonth.where((t) => t.type == TransactionType.income)
-          .fold(0.0, (sum, t) => sum + t.amount);
-        final monthlyExpenses = thisMonth.where((t) => t.type == TransactionType.expense)
-          .fold(0.0, (sum, t) => sum + t.amount);
-        
+        final thisMonth = transactions
+            .where((t) => t.date.year == now.year && t.date.month == now.month)
+            .toList();
+
+        final monthlyIncome = thisMonth
+            .where((t) => t.type == TransactionType.income)
+            .fold(0.0, (sum, t) => sum + t.amount);
+        final monthlyExpenses = thisMonth
+            .where((t) => t.type == TransactionType.expense)
+            .fold(0.0, (sum, t) => sum + t.amount);
+
         // Calculate averages
         final avgDaily = monthlyExpenses / now.day;
         final transactionCount = thisMonth.length;
@@ -920,45 +973,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Quick Stats',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                'Статистик',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: _buildStatCard(
-                    'Monthly Income',
-                    settingsProvider.formatAmount(monthlyIncome),
-                    Icons.trending_up,
-                    Colors.green,
-                  )),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Сарын орлого',
+                      settingsProvider.formatAmount(monthlyIncome),
+                      Icons.trending_up,
+                      Colors.green,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildStatCard(
-                    'Monthly Expenses',
-                    settingsProvider.formatAmount(monthlyExpenses),
-                    Icons.trending_down,
-                    Colors.red,
-                  )),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Сарын зардал',
+                      settingsProvider.formatAmount(monthlyExpenses),
+                      Icons.trending_down,
+                      Colors.red,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _buildStatCard(
-                    'Daily Average',
-                    settingsProvider.formatAmount(avgDaily),
-                    Icons.calendar_today,
-                    Colors.blue,
-                  )),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Өдрийн дундаж',
+                      settingsProvider.formatAmount(avgDaily),
+                      Icons.calendar_today,
+                      Colors.blue,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: _buildStatCard(
-                    'Transactions',
-                    transactionCount.toString(),
-                    Icons.receipt,
-                    Colors.orange,
-                  )),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Гүйлгээ',
+                      transactionCount.toString(),
+                      Icons.receipt,
+                      Colors.orange,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -968,7 +1029,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 4,
       child: Container(
@@ -977,8 +1043,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
             colors: [
-              color.withOpacity(0.1),
-              color.withOpacity(0.05),
+              color.withValues(alpha: 0.1),
+              color.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -996,7 +1062,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     title,
                     style: TextStyle(
                       fontSize: 12,
-                      color: color.withOpacity(0.8),
+                      color: color.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1022,14 +1088,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Consumer2<TransactionProvider, SettingsProvider>(
       builder: (context, transactionProvider, settingsProvider, child) {
         final expensesByCategory = transactionProvider.expensesByCategory;
-        
+
         if (expensesByCategory.isEmpty) {
           return const SizedBox.shrink();
         }
 
         final sortedExpenses = expensesByCategory.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
-        
+
         final topExpenses = sortedExpenses.take(5).toList();
 
         return Container(
@@ -1046,7 +1112,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Icon(Icons.pie_chart, color: Colors.blue.shade600),
                       const SizedBox(width: 12),
                       Text(
-                        'Expense Breakdown',
+                        'Зардлын задаргаа',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -1066,32 +1132,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...topExpenses.map((entry) => Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: _getCategoryColor(topExpenses.indexOf(entry)),
-                            shape: BoxShape.circle,
+                  ...topExpenses.map(
+                    (entry) => Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(
+                                topExpenses.indexOf(entry),
+                              ),
+                              shape: BoxShape.circle,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            entry.key,
-                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              entry.key,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
-                        Text(
-                          settingsProvider.formatAmount(entry.value),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                          Text(
+                            settingsProvider.formatAmount(entry.value),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
-                  )),
+                  ),
                 ],
               ),
             ),
@@ -1125,7 +1197,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Icon(Icons.trending_up, color: Colors.green.shade600),
                       const SizedBox(width: 12),
                       Text(
-                        'Monthly Trends',
+                        'Сарын чиг хандлага',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -1159,7 +1231,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               getTitlesWidget: (value, meta) {
-                                final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                                final months = [
+                                  '1-с',
+                                  '2-с',
+                                  '3-с',
+                                  '4-с',
+                                  '5-с',
+                                  '6-с',
+                                ];
                                 if (value.toInt() < months.length) {
                                   return Text(
                                     months[value.toInt()],
@@ -1170,8 +1249,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               },
                             ),
                           ),
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                         ),
                         borderData: FlBorderData(show: false),
                         lineBarsData: [
@@ -1182,7 +1265,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             dotData: const FlDotData(show: true),
                             belowBarData: BarAreaData(
                               show: true,
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                             ),
                           ),
                           LineChartBarData(
@@ -1192,7 +1275,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             dotData: const FlDotData(show: true),
                             belowBarData: BarAreaData(
                               show: true,
-                              color: Colors.red.withOpacity(0.1),
+                              color: Colors.red.withValues(alpha: 0.1),
                             ),
                           ),
                         ],
@@ -1203,8 +1286,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildLegendItem('Income', Colors.green),
-                      _buildLegendItem('Expenses', Colors.red),
+                      _buildLegendItem('Орлого', Colors.green),
+                      _buildLegendItem('Зардал', Colors.red),
                     ],
                   ),
                 ],
@@ -1220,7 +1303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Consumer2<TransactionProvider, SettingsProvider>(
       builder: (context, transactionProvider, settingsProvider, child) {
         final expensesByCategory = transactionProvider.expensesByCategory;
-        
+
         if (expensesByCategory.isEmpty) {
           return const SizedBox.shrink();
         }
@@ -1242,7 +1325,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Icon(Icons.bar_chart, color: Colors.purple.shade600),
                       const SizedBox(width: 12),
                       Text(
-                        'Category Analysis',
+                        'Ангиллын шинжилгээ',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -1255,7 +1338,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
-                        maxY: sortedExpenses.isNotEmpty ? sortedExpenses.first.value * 1.2 : 100000,
+                        maxY: sortedExpenses.isNotEmpty
+                            ? sortedExpenses.first.value * 1.2
+                            : 100000,
                         barTouchData: BarTouchData(enabled: true),
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
@@ -1275,13 +1360,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               showTitles: true,
                               getTitlesWidget: (value, meta) {
                                 if (value.toInt() < sortedExpenses.length) {
-                                  final category = sortedExpenses[value.toInt()].key;
+                                  final category =
+                                      sortedExpenses[value.toInt()].key;
                                   return Padding(
                                     padding: const EdgeInsets.only(top: 8),
                                     child: Text(
-                                      category.length > 8 
-                                        ? '${category.substring(0, 6)}...' 
-                                        : category,
+                                      category.length > 8
+                                          ? '${category.substring(0, 6)}...'
+                                          : category,
                                       style: const TextStyle(fontSize: 10),
                                     ),
                                   );
@@ -1290,8 +1376,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               },
                             ),
                           ),
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: const AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                         ),
                         borderData: FlBorderData(show: false),
                         barGroups: sortedExpenses.asMap().entries.map((entry) {
@@ -1328,18 +1418,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Container(
           width: 12,
           height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -1349,7 +1433,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     List<MapEntry<String, double>> expenses,
   ) {
     final total = expenses.fold(0.0, (sum, entry) => sum + entry.value);
-    
+
     return expenses.asMap().entries.map((entry) {
       final percentage = (entry.value.value / total * 100);
       return PieChartSectionData(
@@ -1386,25 +1470,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     for (final transaction in transactions) {
       final month = transaction.date.month - 1; // 0-indexed for chart
-      
+
       if (transaction.type == TransactionType.income) {
         monthlyIncome[month] = (monthlyIncome[month] ?? 0) + transaction.amount;
       } else {
-        monthlyExpenses[month] = (monthlyExpenses[month] ?? 0) + transaction.amount;
+        monthlyExpenses[month] =
+            (monthlyExpenses[month] ?? 0) + transaction.amount;
       }
     }
 
     final incomeSpots = <FlSpot>[];
     final expenseSpots = <FlSpot>[];
 
-    for (int i = 0; i < 6; i++) { // Last 6 months
+    for (int i = 0; i < 6; i++) {
+      // Last 6 months
       incomeSpots.add(FlSpot(i.toDouble(), monthlyIncome[i] ?? 0));
       expenseSpots.add(FlSpot(i.toDouble(), monthlyExpenses[i] ?? 0));
     }
 
-    return {
-      'income': incomeSpots,
-      'expenses': expenseSpots,
-    };
+    return {'income': incomeSpots, 'expenses': expenseSpots};
   }
 }

@@ -57,30 +57,29 @@ class _AppLifecycleServiceState extends State<AppLifecycleService>
 
   void _onAppPaused() {
     _backgroundTime = DateTime.now();
-    debugPrint('App paused at: $_backgroundTime');
+    print('App paused at: $_backgroundTime');
   }
 
   void _onAppResumed() {
     final resumeTime = DateTime.now();
-    debugPrint('App resumed at: $resumeTime');
+    print('App resumed at: $resumeTime');
 
     if (_backgroundTime != null) {
       final backgroundDuration = resumeTime.difference(_backgroundTime!);
-      debugPrint(
+      print(
         'App was in background for: ${backgroundDuration.inMinutes} minutes',
       );
 
-      debugPrint('Background resume auto-fetch disabled');
+      print('Background resume auto-fetch disabled');
 
       _backgroundTime = null;
     }
   }
 
   void _performColdStartAutoFetch() {
-    debugPrint('Cold start auto-fetch disabled');
+    print('Cold start auto-fetch disabled');
     // Auto-fetch removed - no Khan Bank calls on app launch
   }
-
 
   @override
   Widget build(BuildContext context) {

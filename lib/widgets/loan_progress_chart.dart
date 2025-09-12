@@ -23,20 +23,26 @@ class LoanProgressChart extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.blue.shade50, Colors.blue.shade100.withOpacity(0.7)],
+          colors: [
+            Colors.blue.shade50,
+            Colors.blue.shade100.withValues(alpha: 0.7),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
             spreadRadius: -5,
           ),
         ],
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +61,7 @@ class LoanProgressChart extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.trending_down, color: Colors.blue, size: 24),
@@ -89,8 +95,8 @@ class LoanProgressChart extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: loan.remainingBalance > 0
-                ? Colors.orange.withOpacity(0.1)
-                : Colors.green.withOpacity(0.1),
+                ? Colors.orange.withValues(alpha: 0.1)
+                : Colors.green.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -137,7 +143,10 @@ class LoanProgressChart extends StatelessWidget {
           horizontalInterval:
               chartData.map((e) => e.y).reduce((a, b) => a > b ? a : b) / 4,
           getDrawingHorizontalLine: (value) {
-            return FlLine(color: Colors.blue.withOpacity(0.1), strokeWidth: 1);
+            return FlLine(
+              color: Colors.blue.withValues(alpha: 0.1),
+              strokeWidth: 1,
+            );
           },
         ),
         titlesData: FlTitlesData(
@@ -193,8 +202,14 @@ class LoanProgressChart extends StatelessWidget {
         borderData: FlBorderData(
           show: true,
           border: Border(
-            bottom: BorderSide(color: Colors.blue.withOpacity(0.2), width: 1),
-            left: BorderSide(color: Colors.blue.withOpacity(0.2), width: 1),
+            bottom: BorderSide(
+              color: Colors.blue.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            left: BorderSide(
+              color: Colors.blue.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
         ),
         lineBarsData: [
@@ -223,8 +238,8 @@ class LoanProgressChart extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  Colors.blue.shade200.withOpacity(0.3),
-                  Colors.blue.shade100.withOpacity(0.1),
+                  Colors.blue.shade200.withValues(alpha: 0.3),
+                  Colors.blue.shade100.withValues(alpha: 0.1),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

@@ -31,7 +31,7 @@ class AutoFetchService extends ChangeNotifier {
         _lastSyncTime = settings.lastSyncTime;
       }
     } catch (e) {
-      debugPrint('Error loading last sync time: $e');
+      print('Error loading last sync time: $e');
     }
   }
 
@@ -41,7 +41,7 @@ class AutoFetchService extends ChangeNotifier {
       settings.lastSyncTime = _lastSyncTime;
       await DatabaseService.instance.updateSettings(settings);
     } catch (e) {
-      debugPrint('Error saving last sync time: $e');
+      print('Error saving last sync time: $e');
     }
   }
 
@@ -139,14 +139,14 @@ class AutoFetchService extends ChangeNotifier {
         _lastSyncTime = DateTime.now();
         await _saveLastSyncTime();
 
-        debugPrint('Auto-fetch completed: $addedCount new transactions');
+        print('Auto-fetch completed: $addedCount new transactions');
         return true;
       }
 
       return false;
     } catch (e) {
       _lastError = 'Гүйлгээ шинэчлэхэд алдаа гарлаа: ${e.toString()}';
-      debugPrint('Auto-fetch error: $e');
+      print('Auto-fetch error: $e');
       return false;
     } finally {
       _isFetching = false;

@@ -158,7 +158,9 @@ class Settings extends HiveObject {
       khanBankDeviceId: json['khanBankDeviceId'] ?? '',
       khanBankPassword: json['khanBankPassword'] ?? '',
       khanBankEnabled: json['khanBankEnabled'] ?? false,
-      lastSyncTime: json['lastSyncTime'] != null ? DateTime.parse(json['lastSyncTime']) : null,
+      lastSyncTime: json['lastSyncTime'] != null
+          ? DateTime.parse(json['lastSyncTime'])
+          : null,
       lastSyncDate: DateTime.parse(json['lastSyncDate']),
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
@@ -183,14 +185,22 @@ class Settings extends HiveObject {
     bool? khanBankEnabled,
   }) {
     // defaultCurrency is always MNT, no update needed
-    if (defaultExportFormat != null) this.defaultExportFormat = defaultExportFormat;
+    if (defaultExportFormat != null) {
+      this.defaultExportFormat = defaultExportFormat;
+    }
     if (exportFolderPath != null) this.exportFolderPath = exportFolderPath;
     if (fileNamingScheme != null) this.fileNamingScheme = fileNamingScheme;
     if (autoBackupEnabled != null) this.autoBackupEnabled = autoBackupEnabled;
-    if (reminderDaysBefore != null) this.reminderDaysBefore = reminderDaysBefore;
-    if (notificationsEnabled != null) this.notificationsEnabled = notificationsEnabled;
+    if (reminderDaysBefore != null) {
+      this.reminderDaysBefore = reminderDaysBefore;
+    }
+    if (notificationsEnabled != null) {
+      this.notificationsEnabled = notificationsEnabled;
+    }
     if (appLockEnabled != null) this.appLockEnabled = appLockEnabled;
-    if (googleDriveFolderId != null) this.googleDriveFolderId = googleDriveFolderId;
+    if (googleDriveFolderId != null) {
+      this.googleDriveFolderId = googleDriveFolderId;
+    }
     if (darkModeEnabled != null) this.darkModeEnabled = darkModeEnabled;
     if (khanBankUsername != null) this.khanBankUsername = khanBankUsername;
     if (khanBankAccount != null) this.khanBankAccount = khanBankAccount;
@@ -207,7 +217,8 @@ class Settings extends HiveObject {
 
   String getFormattedFileName() {
     final now = DateTime.now();
-    final dateString = '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
+    final dateString =
+        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
     return fileNamingScheme.replaceAll('{date}', dateString);
   }
 }
